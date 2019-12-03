@@ -45,7 +45,7 @@ This includes the necessary data in the data folder.
 Or, if you are feeling adventurous, you can compile the notebooks yourself by
 following the instructions below.
 
-# Building the IPython notebooks
+# Building the Jupyter notebooks
 
 This book was written in markdown, with `notedown` and `jupyter nbconvert` used
 to build the book. To recreate the book contents, install the dependencies,
@@ -66,6 +66,10 @@ through by starting a notebook session in this directory:
 ```console
 jupyter notebook
 ```
+
+> N.B. The `jupyter notebook` command must be run from the top-level directory
+> (i.e. the directory containing the README.md) for the links in the generated
+> notebooks to work properly.
 
 ## Installing dependencies
 
@@ -124,14 +128,14 @@ additional software:
 Building the book on Windows is likely to be challenging because we developed
 the build process on Mac and Linux. However, you should still be able to create
 conda environments (see "Installing dependencies", above), and run notedown,
-to make the Jupyter notebooks (see "Building the IPython notebooks", above).
+to make the Jupyter notebooks (see "Building the Jupyter notebooks", above).
 
 If you encounter any problems, please
 [raise an issue!](https://github.com/elegant-scipy/elegant-scipy/issues/new)
 
 ## Building the complete book
 
-We are using `notedown` to convert a markdown file to an IPython
+We are using `notedown` to convert a markdown file to a Jupyter 
 notebook, run it, and then convert to html. For ease of use, this is
 done using a Makefile.
 
