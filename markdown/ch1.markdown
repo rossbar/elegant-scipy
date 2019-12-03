@@ -661,7 +661,7 @@ import itertools as it
 from collections import defaultdict
 
 
-def class_boxplot(data, classes, colors=None, **kwargs):
+def class_boxplot(data, classes, **kwargs):
     """Make a boxplot with boxes colored according to the class they belong to.
 
     Parameters
