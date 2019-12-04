@@ -322,7 +322,8 @@ def bicluster(data, linkage_method='average', distance_metric='correlation'):
     data : 2D ndarray
         The input data to bicluster.
     linkage_method : string, optional
-        Method to be passed to `linkage`.
+        Method to be passed to `linkage`. See the documentation for
+        ``scipy.cluster.hierarchy.linkage`` for valid linkage methods.
     distance_metric : string, optional
         Distance metric to use for clustering. See the documentation
         for ``scipy.spatial.distance.pdist`` for valid metrics.
