@@ -80,8 +80,10 @@ Together, these two functions illustrate many of the things that make NumPy powe
 5. Even functions that don't have an `axis=` keyword can be made to operate along axes by NumPy's `apply_along_axis` function.
 6. Arrays support many kinds of data manipulation through *fancy indexing*:
 `Xn = quantiles[ranks]`. This is possibly the trickiest part of NumPy, but
-also among the most useful. We will explore it further in the text that
-follows.
+also among the most useful.
+The [scipy lecture notes](https://scipy-lectures.org/intro/numpy/array_object.html#fancy-indexing)
+provide a nice overview of fancy indexing and we will explore it further 
+throughout the book.
 
 ## Getting the Data
 
