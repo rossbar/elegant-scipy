@@ -94,8 +94,9 @@ plt.imshow(random_image);
 <!-- caption text="Image displayed by matplotlib's `imshow`" -->
 
 This `imshow` function displays a numpy array as an image. The converse is also true: an image
-can be considered as a numpy array. For this example we use the scikit-image
-library, a collection of image processing tools built on top of NumPy and SciPy.
+can be considered as a numpy array. For this example we use the 
+[scikit-image](https://scikit-image.org/) library, a collection of image
+processing tools built on top of NumPy and SciPy.
 
 Here is a PNG image from the scikit-image repository. It is a black and white
 (sometimes called "grayscale") picture of some ancient Roman coins from
