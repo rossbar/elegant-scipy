@@ -992,7 +992,7 @@ graph.show_rag(seg, g, tiger);
 <!-- caption text="Region adjacency graph overlaid on the tiger image" -->
 
 Here, you can see the nodes corresponding to each segment, and the edges
-between adjacent segments. These are colored with the YlGnBu (yellow-green-blue)
+between adjacent segments. By default, these are colored with the *magma*
 colormap from matplotlib, according to the difference in color between the
 two nodes.
 
