@@ -256,7 +256,7 @@ Taking the log compresses the range significantly.
 
 Here we do a log plot of the ratio of the signal divided by the maximum signal.
 The specific unit used for the ratio is the decibel, $20
-log_{10}\left(\mathrm{amplitude ratio}\right)$.
+log_{10}\left(\textrm{amplitude ratio}\right)$.
 
 ```python
 f, ax = plt.subplots(figsize=(4.8, 2.4))
