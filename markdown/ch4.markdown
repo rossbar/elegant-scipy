@@ -76,7 +76,7 @@ freqs = fftpack.fftfreq(len(x)) * f_s
 
 fig, ax = plt.subplots()
 
-ax.stem(freqs, np.abs(X))
+ax.stem(freqs, np.abs(X), use_line_collection=True)
 ax.set_xlabel('Frequency in Hertz [Hz]')
 ax.set_ylabel('Frequency Domain (Spectrum) Magnitude')
 ax.set_xlim(-f_s / 2, f_s / 2)
@@ -425,10 +425,10 @@ for i in lengths:
 
 
 f, (ax0, ax1) = plt.subplots(2, 1, sharex=True)
-ax0.stem(lengths, np.array(exec_times) * 10**6)
+ax0.stem(lengths, np.array(exec_times) * 10**6, use_line_collection=True)
 ax0.set_ylabel('Execution time (µs)')
 
-ax1.stem(lengths, smoothness)
+ax1.stem(lengths, smoothness, use_line_collection=True)
 ax1.set_ylabel('Smoothness of input length\n(lower is better)')
 ax1.set_xlabel('Length of input');
 ```
