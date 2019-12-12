@@ -757,13 +757,13 @@ spectrum.
 We can counter this effect by a process called *windowing*. The
 original function is multiplied with a window function such as the
 Kaiser window $K(N,\beta)$.  Here we visualize it for $\beta$ ranging
-from 0 to 100:
+from 0 to 10:
 
 ```python
 f, ax = plt.subplots()
 
 N = 10
-beta_max = 5
+beta_max = 10
 colormap = plt.cm.plasma
 
 norm = plt.Normalize(vmin=0, vmax=beta_max)
