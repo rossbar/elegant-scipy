@@ -806,7 +806,7 @@ drastically reduced, at the cost of a slight widening in the main lobe.
 <!--
 *For online notebook, use something like:*
 
-```
+#```
 # @interact(beta=(0, 20.))
 # def window(beta):
 #    x = np.kaiser(1000, beta)
@@ -815,7 +815,7 @@ drastically reduced, at the cost of a slight widening in the main lobe.
 #    axes[1].plot(fftpack.fftshift(np.abs(np.fft.fft(x, 10000))))
 #    axes[1].set_xlim(2*2480, 2*2520)
 #    plt.show()
-```
+#```
 -->
 
 The effect of windowing our previous example is noticeable:
