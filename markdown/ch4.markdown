@@ -1251,7 +1251,7 @@ rng = np.arange(N // 2) * c / 2 / Beff
 
 with plt.style.context('style/thinner.mplstyle'):
     log_plot_normalized(rng, V_single[:N // 2], "$|V_0|$ [dB]", ax0)
-    log_plot_normalized(rng, V_sim[:N // 2], "$|V_5|$ [dB]", ax1)
+    log_plot_normalized(rng, V_sim[:N // 2], "$|V_{\mathrm{sim}}|$ [dB]", ax1)
     log_plot_normalized(rng, V_actual[:N // 2], "$|V_{\mathrm{actual}}|$ [dB]", ax2)
 
 ax0.set_xlim(0, 300)  # Change x limits for these plots so that
@@ -1307,7 +1307,7 @@ t_ms = t * 1000  # Sample times in milli-second
 w = np.kaiser(N, 6.1)  # Kaiser window with beta = 6.1
 
 for n, (signal, label) in enumerate([(v_single, r'$v_0 [V]$'),
-                                     (v_sim, r'$v_5 [V]$'),
+                                     (v_sim, r'$v_{\mathrm{sim}} [V]$'),
                                      (v_actual, r'$v_{\mathrm{actual}} [V]$')]):
     with plt.style.context('style/thinner.mplstyle'):
         axes[n].plot(t_ms, w * signal)
@@ -1332,7 +1332,7 @@ with plt.style.context('style/thinner.mplstyle'):
     log_plot_normalized(rng, V_single_win[:N // 2],
                         r"$|V_{0,\mathrm{win}}|$ [dB]", ax0)
     log_plot_normalized(rng, V_sim_win[:N // 2],
-                        r"$|V_{5,\mathrm{win}}|$ [dB]", ax1)
+                        r"$|V_{\mathrm{sim, win}}|$ [dB]", ax1)
     log_plot_normalized(rng, V_actual_win[:N // 2],
                         r"$|V_\mathrm{actual,win}|$ [dB]", ax2)
 
