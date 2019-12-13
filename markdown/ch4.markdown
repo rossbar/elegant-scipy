@@ -1398,7 +1398,8 @@ Please refer to the diagram below to see how the different slices are
 taken.  A first slice at fixed range shows the strength of echoes
 against elevation and azimuth.  Another two slices at fixed elevation
 and azimuth respectively shows the slope.  The stepped construction of
-the high wall in an opencast mine is visible in the azimuth plane.
+the high wall in an opencast mine is visible in the elevation-azimuth 
+plane.
 
 <img src="../figures/axes_slices.png"
      alt="Diagram showing azimuth, elevation and range slices through data volume"/>
