@@ -884,7 +884,7 @@ discards any high frequencies).
 > irradiating the target is reflected back to the receiver as a second
 > electromagnetic wave that propagates in the direction of the radar
 > system. When this wave encounters the receive antenna, the antenna
-> collects the energy in the wave energy impinging on it and converts
+> collects the energy in the wave impinging on it and converts
 > it to a fluctuating voltage that is fed to the mixer. The mixer
 > multiplies the received signal with a replica of the transmit signal
 > and produces a sinusoidal signal with a frequency equal to the
