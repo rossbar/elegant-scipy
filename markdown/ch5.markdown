@@ -462,6 +462,14 @@ are often related to functional regions of the brain [^Newman]!
 [^Newman]: Newman MEJ (2006). Modularity and community structure in networks.
            PNAS 103(23):8577-8582. DOI:10.1073/pnas.0601602103
 
+## Common Sparse Matrix Formats
+
+This table presents the sparse matrix formats available in `scipy.sparse`.
+Each of the formats is accompanied by a short description, a summary of 
+advantages and disadvantages, and general considerations for various use cases.
+For more information, see the 
+[scipy.sparse documentation](https://docs.scipy.org/doc/scipy/reference/sparse.html)
+
 <div class="landscape">
 <table style="font-size: 50%;">
 <colgroup>
