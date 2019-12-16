@@ -451,8 +451,9 @@ order your search results. (You can read more about this in the next chapter.)
 
 As another example, we can represent the human brain as a large $m \times m$
 graph, where there are $m$ nodes (positions) in which you
-measure activity using an MRI scanner.  After a while of measuring,
-correlations can be calculated and entered into a matrix $C_{ij}$.
+measure activity using an MRI scanner.  Once a sufficient number of 
+measurements have been made, correlations can be calculated and entered into
+a matrix $C_{ij}$.
 Thresholding this matrix produces a sparse matrix of ones and zeros. 
 The eigenvector corresponding to the second-smallest eigenvalue of this matrix
 partitions the $m$ brain areas into subgroups, which, it turns out,
