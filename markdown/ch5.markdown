@@ -1051,8 +1051,8 @@ So, the entropy of a coin toss $T$ that can take values heads ($h$) and tails
 $$
 \begin{aligned}
 H(T) & = p_h \log_2(1/p_h) + p_t \log_2(1/p_t) \\
-     & = 1/2 log_2(2) + 1/2 \log_2(2) \\
-     & = 1/2 \cdot 1 + 1/2 \cdot 1 \\
+     & = \frac{1}{2} log_2(2) + \frac{1}{2} \log_2(2) \\
+     & = \frac{1}{2} \cdot 1 + \frac{1}{2} \cdot 1 \\
      & = 1
 \end{aligned}
 $$
