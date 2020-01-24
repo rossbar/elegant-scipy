@@ -77,8 +77,7 @@ The so-called [central dogma of molecular biology](https://en.wikipedia.org/wiki
 This molecule has a repetitive backbone on which lie chemical groups called *bases*, in sequence.
 There are four kinds of bases, abbreviated as A, C, G, and T, comprising an alphabet with which information is stored.
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/DNA_chemical_structure.svg"/>
-<!-- caption text="The chemical structure of DNA (image by Madeleine Price Ball, used under the terms of the CC0 public domain license)" -->
+![The chemical structure of DNA (image by Madeleine Price Ball, used under the terms of the CC0 public domain license)](https://upload.wikimedia.org/wikipedia/commons/e/e4/DNA_chemical_structure.svg)
 
 To access this information, the DNA is *transcribed* into a sister molecule called *messenger ribonucleic acid*, or mRNA.
 Finally, this mRNA is *translated* into proteins, the workhorses of the cell.
@@ -93,8 +92,7 @@ Fortunately, expression levels of an mRNA and levels of its corresponding protei
 Therefore, we usually measure mRNA levels and base our analyses on that.
 As you will see below, it often doesn't matter, because we are using mRNA levels for their power to predict biological outcomes, rather than to make specific statements about proteins.
 
-<img src="../figures/central_dogma.png"/>
-<!-- caption text="Central dogma of molecular biology" -->
+![Central dogma of molecular biology]("../figures/central_dogma.png)
 
 It's important to note that the DNA in every cell of your body is identical.
 Thus, the differences between cells arise from *differential expression* of
@@ -102,8 +100,7 @@ that DNA into RNA: in different cells, different parts of the DNA are processed
 into downstream molecules. Similarly, as we will see in this chapter and the
 next, differential expression can distinguish different kinds of cancer.
 
-<img src="../figures/differential_gene_expression.png"/>
-<!-- caption text="Gene expression" -->
+![Gene expression](../figures/differential_gene_expression.png)
 
 The state-of-the-art technology to measure mRNA is RNA sequencing (RNAseq).
 RNA is extracted from a tissue sample (e.g., from a biopsy from a patient), *reverse transcribed* back into DNA (which is more stable), and then read out using chemically modified bases that glow when they are incorporated into the DNA sequence.
@@ -111,8 +108,7 @@ Currently, high-throughput sequencing machines can only read short fragments (ap
 We measure millions of reads and then based on their sequence we count how many reads came from each gene.
 We’ll be starting our analysis directly from this count data.
 
-<img src="../figures/RNAseq.png"/>
-<!-- caption text="RNA sequencing (RNAseq)" -->
+![RNA sequencing (RNAseq)](../figures/RNAseq.png)
 
 This table shows a minimal example of gene expression count data:
 
@@ -193,8 +189,7 @@ print(type(array2d))
 
 Now you can see that the `shape` attribute generalizes `len` to account for the size of multiple dimensions of an array of data.
 
-<img src="../figures/NumPy_ndarrays_v2.png"/>
-<!-- caption text="Visualizing NumPy's ndarrays in one, two and three dimensions" -->
+![Visualizing NumPy's ndarrays in one, two and three dimensions](../figures/NumPy_ndarrays_v2.png")
 
 Arrays have other attributes, such as `ndim`, the number of dimensions:
 
@@ -733,8 +728,7 @@ So if a gene is twice as long, it'll produce twice as many fragments, and we are
 Therefore, we would expect gene B to have about twice as many counts as gene A.
 If we want to compare the expression levels of different genes, we will have to do some more normalization.
 
-<img src="../figures/gene_length_counts.png"/>
-<!-- caption text="Relationship between counts and gene length" -->
+![Relationship between counts and gene length](../figures/gene_length_counts.png)
 
 Let's see if the relationship between gene length and counts plays out in our dataset.
 First, we define a utility function for plotting:
@@ -874,7 +868,6 @@ But biologists like thinking in millions of reads so that the numbers don't get
 too small. Counting per million reads we get:
 
 $ \frac{10^3C}{L(N/10^6)} = \frac{10^9C}{LN}$
-
 
 In summary, to calculate reads per kilobase transcript per million reads:
 $RPKM = \frac{10^9C}{LN}$
@@ -1020,7 +1013,7 @@ Finally we need to normalize by the library size,
 the total number of counts for that column.
 Remember that we have already calculated $N$ with:
 
-```
+```python
 N = np.sum(counts, axis=0) # sum each column to get total reads per sample
 ```
 
