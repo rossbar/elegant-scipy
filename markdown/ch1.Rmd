@@ -105,17 +105,20 @@ Figure +@fig:dna illustrates the basic chemical structure of DNA.
 ![The chemical structure of DNA (image by Madeleine Price Ball,
 used under the terms of the CC0 public domain license)](../images/2000px-DNA_chemical_structure.png){#fig:dna height=40% placement='H'}
 
+To access this information, the DNA is *transcribed* into a sister molecule called *messenger ribonucleic acid*, or mRNA.
+Finally, this mRNA is *translated* into proteins, the workhorses of the cell.
+A section of DNA that encodes the information to make a protein (via mRNA) is called a gene.
+
+The amount of mRNA produced from a given gene is called the *expression* of that gene.
+Although we would ideally like to measure protein levels, this is a much harder task than measuring mRNA.
+Fortunately, expression levels of an mRNA and levels of its corresponding protein are usually correlated[@maier2009correlation].
+
 ---
-#To access this information, the DNA is *transcribed* into a sister molecule called *messenger ribonucleic acid*, or mRNA.
-#Finally, this mRNA is *translated* into proteins, the workhorses of the cell.
-#A section of DNA that encodes the information to make a protein (via mRNA) is called a gene.
-#
-#The amount of mRNA produced from a given gene is called the *expression* of that gene.
-#Although we would ideally like to measure protein levels, this is a much harder task than measuring mRNA.
-#Fortunately, expression levels of an mRNA and levels of its corresponding protein are usually correlated[@maier2009correlation].
 #
 #Therefore, we usually measure mRNA levels and base our analyses on that.
 #As you will see below, it often doesn't matter, because we are using mRNA levels for their power to predict biological outcomes, rather than to make specific statements about proteins.
+#
+#
 #
 #![Central dogma of molecular biology]("../figures/central_dogma.png)
 #
