@@ -165,55 +165,55 @@ We can retrieve individual data points using two levels of list indexing:
 expression_data[2][0]
 ```
 
+Because of the way the Python interpreter works, this is a very inefficient way to store these data points.
+First, Python lists are always lists of *objects*, so that the above list `gene2` is not a list of integers, but a list of *pointers* to integers, which is unnecessary overhead.
+Additionally, this means that each of these lists and each of these integers ends up in a completely different, random part of your computer's RAM.
+However, modern processors actually like to retrieve things from memory in *chunks*, so this spreading of the data throughout the RAM is inefficient.
+
+This is precisely the problem solved by the *NumPy array*.
+
+## NumPy N-Dimensional Arrays
+
+One of the key NumPy data types is the N-dimensional array (ndarray, or just array).
+Ndarrays underpin lots of awesome data manipulation techniques in SciPy.
+In particular, we're going to explore vectorization and broadcasting,
+techniques that allow us to write powerful, elegant code to manipulate our data.
+
+First, let's get our heads around the the ndarray.
+These arrays must be homogeneous: all items in an array must be the same type.
+In our case we will need to store integers.
+Ndarrays are called N-dimensional because they can have any number of dimensions.
+A 1-dimensional array is roughly equivalent to a Python list:
+
+```{python}
+import numpy as np
+
+array1d = np.array([1, 2, 3, 4])
+print(array1d)
+print(type(array1d))
+```
+
+Arrays have particular attributes and methods, that you can access by placing a dot after the array name.
+For example, you can get the array's *shape* with the following code:
+
+```{python}
+print(array1d.shape)
+```
+
+Here, it's just a tuple with a single number.
+You might wonder why you wouldn't just use `len`, as you would for a list.
+That will work, but it doesn't extend to *2D* arrays.
+
+This is what we use to represent the data in the table above:
+
+```{python}
+array2d = np.array(expression_data)
+print(array2d)
+print(array2d.shape)
+print(type(array2d))
+```
+
 ---
-#Because of the way the Python interpreter works, this is a very inefficient way to store these data points.
-#First, Python lists are always lists of *objects*, so that the above list `gene2` is not a list of integers, but a list of *pointers* to integers, which is unnecessary overhead.
-#Additionally, this means that each of these lists and each of these integers ends up in a completely different, random part of your computer's RAM.
-#However, modern processors actually like to retrieve things from memory in *chunks*, so this spreading of the data throughout the RAM is inefficient.
-#
-#This is precisely the problem solved by the *NumPy array*.
-#
-### NumPy N-Dimensional Arrays
-#
-#One of the key NumPy data types is the N-dimensional array (ndarray, or just array).
-#Ndarrays underpin lots of awesome data manipulation techniques in SciPy.
-#In particular, we're going to explore vectorization and broadcasting,
-#techniques that allow us to write powerful, elegant code to manipulate our data.
-#
-#First, let's get our heads around the the ndarray.
-#These arrays must be homogeneous: all items in an array must be the same type.
-#In our case we will need to store integers.
-#Ndarrays are called N-dimensional because they can have any number of dimensions.
-#A 1-dimensional array is roughly equivalent to a Python list:
-#
-#```python
-#import numpy as np
-#
-#array1d = np.array([1, 2, 3, 4])
-#print(array1d)
-#print(type(array1d))
-#```
-#
-#Arrays have particular attributes and methods, that you can access by placing a dot after the array name.
-#For example, you can get the array's *shape* with the following code:
-#
-#```python
-#print(array1d.shape)
-#```
-#
-#Here, it's just a tuple with a single number.
-#You might wonder why you wouldn't just use `len`, as you would for a list.
-#That will work, but it doesn't extend to *2D* arrays.
-#
-#This is what we use to represent the data in the table above:
-#
-#```python
-#array2d = np.array(expression_data)
-#print(array2d)
-#print(array2d.shape)
-#print(type(array2d))
-#```
-#
 #Now you can see that the `shape` attribute generalizes `len` to account for the size of multiple dimensions of an array of data.
 #
 #![Visualizing NumPy's ndarrays in one, two and three dimensions](../figures/NumPy_ndarrays_v2.png")
