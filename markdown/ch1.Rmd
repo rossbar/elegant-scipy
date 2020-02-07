@@ -135,19 +135,23 @@ We’ll be starting our analysis directly from this count data.
 
 ![RNA sequencing (RNAseq)](../figures/RNAseq.png){#fig:rna_seq height=60%}
 
+
++@tbl:gene_expr shows a minimal example of gene expression count data:
+
+|        | Cell type A | Cell type B |
+|--------|-------------|-------------|
+| Gene 0 | 100         | 200         |
+| Gene 1 | 50          | 0           |
+| Gene 2 | 350         | 100         |
+
+Table: Example gene expression count data {#tbl:gene_expr align=crr}
+
+The data is a table of integers representing how many reads were observed for each gene in each cell type.
+See how the counts for each gene differ between the cell types?
+We can use this information to learn about the differences between these two types of cell.
+
+
 ---
-#
-#This table shows a minimal example of gene expression count data:
-#
-#|        | Cell type A | Cell type B |
-#|--------|-------------|-------------|
-#| Gene 0 | 100         | 200         |
-#| Gene 1 | 50          | 0           |
-#| Gene 2 | 350         | 100         |
-#
-#The data is a table of counts, integers representing how many reads were observed for each gene in each cell type.
-#See how the counts for each gene differ between the cell types?
-#We can use this information to learn about the differences between these two types of cell.
 #
 #One way to represent this data in Python would be as a list of lists:
 #
