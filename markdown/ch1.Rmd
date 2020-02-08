@@ -217,30 +217,31 @@ Now you can see that the `shape` attribute generalizes `len` to account for the 
 
 ![Visualizing NumPy's ndarrays in one, two and three dimensions](../figures/NumPy_ndarrays_v2.png){#fig:ndarray}
 
+Arrays have other attributes, such as `ndim`, the number of dimensions:
+
+```{python}
+print(array2d.ndim)
+```
+
+You'll become familiar with all of these as you start to use NumPy more for your own data analysis.
+
+NumPy arrays can represent data that has even more dimensions, such as magnetic resonance imaging (MRI) data, which includes measurements within a 3D volume.
+If we store MRI values over time, we might need a 4D NumPy array.
+
+For now, we'll stick to 2D data.
+Later chapters will introduce higher-dimensional data and will teach you to write code that works for data of any number of dimensions.
+
+### Why Use ndarrays Instead of Python Lists?
+
+Arrays are fast because they enable vectorized operations, written in the low-level language C, that act on the whole array.
+Say you have a list and you want to multiply every element in the list by five.
+A standard Python approach would be to write a loop that iterates over the
+elements of the list and multiply each one by five.
+However, if your data were instead represented as an array,
+you can multiply every element in the array by five in a single bound.
+Behind the scenes, the highly-optimized NumPy library is doing the iteration as fast as possible.
+
 ---
-#Arrays have other attributes, such as `ndim`, the number of dimensions:
-#
-#```python
-#print(array2d.ndim)
-#```
-#
-#You'll become familiar with all of these as you start to use NumPy more for your own data analysis.
-#
-#NumPy arrays can represent data that has even more dimensions, such as magnetic resonance imaging (MRI) data, which includes measurements within a 3D volume.
-#If we store MRI values over time, we might need a 4D NumPy array.
-#
-#For now, we'll stick to 2D data.
-#Later chapters will introduce higher-dimensional data and will teach you to write code that works for data of any number of dimensions.
-#
-#### Why Use ndarrays Instead of Python Lists?
-#
-#Arrays are fast because they enable vectorized operations, written in the low-level language C, that act on the whole array.
-#Say you have a list and you want to multiply every element in the list by five.
-#A standard Python approach would be to write a loop that iterates over the
-#elements of the list and multiply each one by five.
-#However, if your data were instead represented as an array,
-#you can multiply every element in the array by five in a single bound.
-#Behind the scenes, the highly-optimized NumPy library is doing the iteration as fast as possible.
 #
 #```python
 #import numpy as np
