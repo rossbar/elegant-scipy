@@ -241,34 +241,34 @@ However, if your data were instead represented as an array,
 you can multiply every element in the array by five in a single bound.
 Behind the scenes, the highly-optimized NumPy library is doing the iteration as fast as possible.
 
+
+```{python}
+import numpy as np
+
+# Create an ndarray of integers in the range
+# 0 up to (but not including) 1,000,000
+array = np.arange(1e6)
+
+# Convert it to a list
+list_array = array.tolist()
+```
+
+Let's compare how long it takes to multiply all the values in the array by five,
+using the IPython `timeit` magic function. First, when the data is in a list:
+
+```{python}
+%timeit -n10 y = [val * 5 for val in list_array]
+```
+
+Now, using NumPy's built-in *vectorized* operations:
+
+```{python}
+%timeit -n10 x = array * 5
+```
+
+Over 50 times faster, and more concise, too!
+
 ---
-#
-#```python
-#import numpy as np
-#
-## Create an ndarray of integers in the range
-## 0 up to (but not including) 1,000,000
-#array = np.arange(1e6)
-#
-## Convert it to a list
-#list_array = array.tolist()
-#```
-#
-#Let's compare how long it takes to multiply all the values in the array by five,
-#using the IPython `timeit` magic function. First, when the data is in a list:
-#
-#```python
-#%timeit -n10 y = [val * 5 for val in list_array]
-#```
-#
-#Now, using NumPy's built-in *vectorized* operations:
-#
-#```python
-#%timeit -n10 x = array * 5
-#```
-#
-#Over 50 times faster, and more concise, too!
-#
 #Arrays are also size efficient.
 #In Python, each element in a list is an object and is given a healthy memory allocation (or is that unhealthy?).
 #In contrast, in arrays, each element takes up just the necessary amount of memory.
@@ -278,19 +278,19 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Plus, when computing with arrays, you can also use *slices* that subset the array *without copying the underlying data*.
 #
-#```python
+#```{python}
 ## Create an ndarray x
 #x = np.array([1, 2, 3], np.int32)
 #print(x)
 #```
 #
-#```python
+#```{python}
 ## Create a "slice" of x
 #y = x[:2]
 #print(y)
 #```
 #
-#```python
+#```{python}
 ## Set the first element of y to be 6
 #y[0] = 6
 #print(y)
@@ -298,7 +298,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Notice that although we edited `y`, `x` has also changed, because `y` was referencing the same data!
 #
-#```python
+#```{python}
 ## Now the first element in x has changed to 6!
 #print(x)
 #```
@@ -306,7 +306,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #This means you have to be careful with array references.
 #If you want to manipulate the data without touching the original, it's easy to make a copy:
 #
-#```python
+#```{python}
 #y = np.copy(x[:2])
 #```
 #
@@ -318,14 +318,14 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #In addition to speeding things up, this can result in more natural, readable code.
 #Let's look at some examples.
 #
-#```python
+#```{python}
 #x = np.array([1, 2, 3, 4])
 #print(x * 2)
 #```
 #
 #Here, we have `x`, an array of 4 values, and we have implicitly multiplied every element in `x` by 2, a single value.
 #
-#```python
+#```{python}
 #y = np.array([0, 1, 2, 1])
 #print(x + y)
 #```
@@ -343,13 +343,13 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #It allows you to perform operations on arrays of *compatible* shapes, to create arrays bigger than either of the starting ones.
 #For example, we can compute the [outer product](https://en.wikipedia.org/wiki/Outer_product) of two vectors, by reshaping them appropriately:
 #
-#```python
+#```{python}
 #x = np.array([1, 2, 3, 4])
 #x = np.reshape(x, (len(x), 1))
 #print(x)
 #```
 #
-#```python
+#```{python}
 #y = np.array([0, 1, 2, 1])
 #y = np.reshape(y, (1, len(y)))
 #print(y)
@@ -366,14 +366,14 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Let's check the shapes of these two arrays.
 #
-#```python
+#```{python}
 #print(x.shape)
 #print(y.shape)
 #```
 #
 #Both arrays have two dimensions and the inner dimensions of both arrays are 1, so the dimensions are compatible!
 #
-#```python
+#```{python}
 #outer = x * y
 #print(outer)
 #```
@@ -381,7 +381,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #The outer dimensions tell you the size of the resulting array.
 #In our case we expect a (4, 4) array:
 #
-#```python
+#```{python}
 #print(outer.shape)
 #```
 #
@@ -417,7 +417,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #In later chapters we will see a bit more of pandas, but for details, read *Python
 #for Data Analysis* (O'Reilly) by the creator of pandas, Wes McKinney.
 #
-#```python
+#```{python}
 #import bz2
 #import numpy as np
 #import pandas as pd
@@ -435,7 +435,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #We will also need some corresponding metadata, including the sample information and the gene lengths.
 #
-#```python
+#```{python}
 ## Sample names
 #samples = list(data_table.columns)
 #```
@@ -444,7 +444,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #So that we can take advantage of some fancy pandas indexing, we're going to set
 #the index of the pandas table to be the gene names in the first column.
 #
-#```python
+#```{python}
 ## Import gene lengths
 #filename = 'data/genes.csv'
 #with open(filename, 'rt') as f:
@@ -455,7 +455,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Let's check how well our gene length data matches up with our count data.
 #
-#```python
+#```{python}
 #print("Genes in data_table: ", data_table.shape[0])
 #print("Genes in gene_info: ", gene_info.shape[0])
 #```
@@ -467,14 +467,14 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #We can get the intersection of the gene names from our two sources of data
 #and use these to index both datasets, ensuring they have the same genes in the same order.
 #
-#```python
+#```{python}
 ## Subset gene info to match the count data
 #matched_index = pd.Index.intersection(data_table.index, gene_info.index)
 #```
 #
 #Now let's use the intersection of the gene names to index our count data.
 #
-#```python
+#```{python}
 ## 2D ndarray containing expression counts for each gene in each individual
 #counts = np.asarray(data_table.loc[matched_index], dtype=int)
 #
@@ -486,7 +486,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #And our gene lengths.
 #
-#```python
+#```{python}
 ## 1D ndarray containing the lengths of each gene
 #gene_lengths = np.asarray(gene_info.loc[matched_index]['GeneLength'],
 #                          dtype=int)
@@ -494,7 +494,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #And let's check the dimensions of our objects.
 #
-#```python
+#```{python}
 #print(counts.shape)
 #print(gene_lengths.shape)
 #```
@@ -529,7 +529,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #Before we start, we have to do some plotting setup (which we will do in every
 #chapter). See "A quick note on plotting" for details about each line of the following code.
 #
-#```python
+#```{python}
 ## Make all plots appear inline in the Jupyter notebook from now onwards
 #%matplotlib inline
 ## Use our own style file for the plots
@@ -563,7 +563,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Now back to plotting our counts distribution!
 #
-#```python
+#```{python}
 #total_counts = np.sum(counts, axis=0)  # sum columns together
 #                                       # (axis=1 would sum rows)
 #
@@ -599,7 +599,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #we apply our normalization we can see it in action. We'll subset a random sample
 #of just 70 columns to keep the plotting from getting too messy.
 #
-#```python
+#```{python}
 ## Subset data for plotting
 #np.random.seed(seed=7) # Set seed so we will get consistent results
 ## Randomly select 70 samples
@@ -607,7 +607,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #counts_subset = counts[:, samples_index]
 #```
 #
-#```python
+#```{python}
 ## Some custom x-axis labelling to make our plots easier to read
 #def reduce_xaxis_labels(ax, factor):
 #    """Show only every ith label to prevent crowding on x-axis
@@ -624,7 +624,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #        label.set_visible(True)
 #```
 #
-#```python
+#```{python}
 ## Box plot of expression counts by individual
 #fig, ax = plt.subplots(figsize=(4.8, 2.4))
 #
@@ -640,7 +640,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #So let's do log(n + 1) of our data so it's a bit easier to look at.
 #Both the log function and the n + 1 step can be done using broadcasting to simplify our code and speed things up.
 #
-#```python
+#```{python}
 ## Bar plot of expression counts by individual
 #fig, ax = plt.subplots(figsize=(4.8, 2.4))
 #
@@ -654,7 +654,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Now let's see what happens when we normalize by library size.
 #
-#```python
+#```{python}
 ## Normalize by library size
 ## Divide the expression counts by the total counts for that individual
 ## Multiply by 1 million to get things back in a similar scale
@@ -679,7 +679,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Finally, let's compare our normalized data to the raw data.
 #
-#```python
+#```{python}
 #import itertools as it
 #from collections import defaultdict
 #
@@ -729,7 +729,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #Now we can plot a colored boxplot according to normalized versus unnormalized samples.
 #We show only three samples from each class for illustration:
 #
-#```python
+#```{python}
 #log_counts_3 = list(np.log(counts.T[:3] + 1))
 #log_ncounts_3 = list(np.log(counts_lib_norm.T[:3] + 1))
 #ax = class_boxplot(log_counts_3 + log_ncounts_3,
@@ -761,7 +761,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #Let's see if the relationship between gene length and counts plays out in our dataset.
 #First, we define a utility function for plotting:
 #
-#```python
+#```{python}
 #def binned_boxplot(x, y, *,  # check out this Python 3 exclusive! (*see tip box)
 #                   xlabel='gene length (log scale)',
 #                   ylabel='average log counts'):
@@ -844,7 +844,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #We now compute the gene lengths and counts:
 #
-#```python
+#```{python}
 #log_counts = np.log(counts_lib_norm + 1)
 #mean_log_counts = np.mean(log_counts, axis=1)  # across samples
 #log_gene_lengths = np.log(gene_lengths)
@@ -852,7 +852,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #And we plot the counts as a function of gene length:
 #
-#```python
+#```{python}
 #with plt.style.context('style/thinner.mplstyle'):
 #    binned_boxplot(x=log_gene_lengths, y=mean_log_counts);
 #```
@@ -902,7 +902,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Now let's implement RPKM over the entire counts array.
 #
-#```python
+#```{python}
 ## Make our variable names the same as the RPKM formula so we can compare easily
 #C = counts
 #N = np.sum(counts, axis=0)  # sum each column to get total reads per sample
@@ -962,7 +962,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #If we multiple an ndarray by a single value,
 #that value is broadcast over the entire array.
 #
-#```python
+#```{python}
 ## Multiply all counts by $10^9$. Note that ^ in Python is bitwise-or.
 ## Exponentiation is denoted by `**`
 ## Avoid overflow by converting C to float, see tip "Numbers and computers"
@@ -1006,7 +1006,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Let's look at the dimensions of our arrays.
 #
-#```python
+#```{python}
 #print('C_tmp.shape', C_tmp.shape)
 #print('L.shape', L.shape)
 #```
@@ -1024,7 +1024,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #We want to broadcast L over the first dimension of `C_tmp`,
 #so we need to adjust the dimensions of L ourselves.
 #
-#```python
+#```{python}
 #L = L[:, np.newaxis] # append a dimension to L, with value 1
 #print('C_tmp.shape', C_tmp.shape)
 #print('L.shape', L.shape)
@@ -1032,7 +1032,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Now that our dimensions match or are equal to 1, we can broadcast.
 #
-#```python
+#```{python}
 ## Divide each row by the gene length for that gene (L)
 #C_tmp = C_tmp / L
 #```
@@ -1041,11 +1041,11 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #the total number of counts for that column.
 #Remember that we have already calculated $N$ with:
 #
-#```python
+#```{python}
 #N = np.sum(counts, axis=0) # sum each column to get total reads per sample
 #```
 #
-#```python
+#```{python}
 ## Check the shapes of C_tmp and N
 #print('C_tmp.shape', C_tmp.shape)
 #print('N.shape', N.shape)
@@ -1059,21 +1059,21 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #The dimensions will match so we don't have to do anything.
 #However, for readability, it can be useful to add the extra dimension to N anyway.
 #
-#```python
+#```{python}
 ## Divide each column by the total counts for that column (N)
 #N = N[np.newaxis, :]
 #print('C_tmp.shape', C_tmp.shape)
 #print('N.shape', N.shape)
 #```
 #
-#```python
+#```{python}
 ## Divide each column by the total counts for that column (N)
 #rpkm_counts = C_tmp / N
 #```
 #
 #Let's put this in a function so we can reuse it.
 #
-#```python
+#```{python}
 #def rpkm(counts, lengths):
 #    """Calculate reads per kilobase transcript per million reads.
 #
@@ -1107,7 +1107,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #    return(normed)
 #```
 #
-#```python
+#```{python}
 #counts_rpkm = rpkm(counts, gene_lengths)
 #```
 #
@@ -1116,7 +1116,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #Let's see the RPKM normalization's effect in action. First, as a reminder, here's
 #the distribution of mean log counts as a function of gene length:
 #
-#```python
+#```{python}
 #log_counts = np.log(counts + 1)
 #mean_log_counts = np.mean(log_counts, axis=1)
 #log_gene_lengths = np.log(gene_lengths)
@@ -1129,7 +1129,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #
 #Now, the same plot with the RPKM-normalized values:
 #
-#```python
+#```{python}
 #log_counts = np.log(counts_rpkm + 1)
 #mean_log_counts = np.mean(log_counts, axis=1)
 #log_gene_lengths = np.log(gene_lengths)
@@ -1149,7 +1149,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #We've already seen that longer genes have higher counts, but this doesn't mean their expression level is actually higher.
 #Let's choose a short gene and a long gene and compare their counts before and after RPKM normalization to see what we mean.
 #
-#```python
+#```{python}
 #gene_idxs = np.nonzero((gene_names == 'RPL24') |
 #                       (gene_names == 'TXNDC5'))
 #gene1, gene2 = gene_names[gene_idxs]
@@ -1171,7 +1171,7 @@ Behind the scenes, the highly-optimized NumPy library is doing the iteration as 
 #slightly more than the shorter one, RPL24.
 #But, after RPKM normalization, a different picture emerges:
 #
-#```python
+#```{python}
 #ax = class_boxplot(log_ncounts,
 #                   ['RPKM normalized'] * 3,
 #                   labels=gene_labels)
