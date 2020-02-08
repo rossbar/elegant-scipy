@@ -260,15 +260,15 @@ using the IPython `timeit` magic function. First, when the data is in a list:
 %timeit -n10 y = [val * 5 for val in list_array]
 ```
 
-Now, using NumPy's built-in *vectorized* operations:
-
-```{python}
-%timeit -n10 x = array * 5
-```
-
-Over 50 times faster, and more concise, too!
-
 ---
+#Now, using NumPy's built-in *vectorized* operations:
+#
+#```{python}
+#%timeit -n10 x = array * 5
+#```
+#
+#Over 50 times faster, and more concise, too!
+#
 #Arrays are also size efficient.
 #In Python, each element in a list is an object and is given a healthy memory allocation (or is that unhealthy?).
 #In contrast, in arrays, each element takes up just the necessary amount of memory.
