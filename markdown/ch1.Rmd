@@ -204,7 +204,7 @@ Here, it's just a tuple with a single number.
 You might wonder why you wouldn't just use `len`, as you would for a list.
 That will work, but it doesn't extend to *2D* arrays.
 
-This is what we use to represent the data in the table above:
+This is what we use to represent the data in +@tbl:gene_expr:
 
 ```{python}
 array2d = np.array(expression_data)
@@ -213,11 +213,11 @@ print(array2d.shape)
 print(type(array2d))
 ```
 
+Now you can see that the `shape` attribute generalizes `len` to account for the size of multiple dimensions of an array of data, as illustrated in +@fig:ndarray.
+
+![Visualizing NumPy's ndarrays in one, two and three dimensions](../figures/NumPy_ndarrays_v2.png){#fig:ndarray}
+
 ---
-#Now you can see that the `shape` attribute generalizes `len` to account for the size of multiple dimensions of an array of data.
-#
-#![Visualizing NumPy's ndarrays in one, two and three dimensions](../figures/NumPy_ndarrays_v2.png")
-#
 #Arrays have other attributes, such as `ndim`, the number of dimensions:
 #
 #```python
