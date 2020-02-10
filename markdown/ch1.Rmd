@@ -279,41 +279,41 @@ This is generally much less than would be given to objects in a Python list[^vdp
     check out Jake VanderPlas's blog post,
     ["Why Python Is Slow: Looking Under the Hood"](https://jakevdp.github.io/blog/2014/05/09/why-python-is-slow/).
 
+Plus, when computing with arrays, you can also use *slices* that subset the array *without copying the underlying data*.
+
+```{python}
+# Create an ndarray x
+x = np.array([1, 2, 3], np.int32)
+print(x)
+```
+
+```{python}
+# Create a "slice" of x
+y = x[:2]
+print(y)
+```
+
+```{python}
+# Set the first element of y to be 6
+y[0] = 6
+print(y)
+```
+
+Notice that although we edited `y`, `x` has also changed, because `y` was referencing the same data!
+
+```{python}
+# Now the first element in x has changed to 6!
+print(x)
+```
+
+This means you have to be careful with array references.
+If you want to manipulate the data without touching the original, it's easy to make a copy:
+
+```{python}
+y = np.copy(x[:2])
+```
+
 ---
-#Plus, when computing with arrays, you can also use *slices* that subset the array *without copying the underlying data*.
-#
-#```{python}
-## Create an ndarray x
-#x = np.array([1, 2, 3], np.int32)
-#print(x)
-#```
-#
-#```{python}
-## Create a "slice" of x
-#y = x[:2]
-#print(y)
-#```
-#
-#```{python}
-## Set the first element of y to be 6
-#y[0] = 6
-#print(y)
-#```
-#
-#Notice that although we edited `y`, `x` has also changed, because `y` was referencing the same data!
-#
-#```{python}
-## Now the first element in x has changed to 6!
-#print(x)
-#```
-#
-#This means you have to be careful with array references.
-#If you want to manipulate the data without touching the original, it's easy to make a copy:
-#
-#```{python}
-#y = np.copy(x[:2])
-#```
-#
 #### Vectorization
 #
 #Earlier we talked about the speed of operations on arrays.
