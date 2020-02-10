@@ -396,115 +396,115 @@ Don't worry, we will talk about these rules in more detail later in this chapter
 As we will see in the rest of the chapter, as we explore real data, broadcasting is extremely valuable for real-world calculations on arrays of data.
 It allows us to express complex operations concisely and efficiently.
 
+## Exploring a Gene Expression Dataset
+
+The dataset that we'll be using is an RNAseq experiment of skin cancer samples from The Cancer Genome Atlas (TCGA) project (http://cancergenome.nih.gov/).
+We've already cleaned and sorted the data for you, so you can use `data/counts.txt.bz2`
+in the book repository.
+In Chapter 2 we will be using this gene expression data to predict mortality in skin cancer patients, reproducing a simplified version of [Figures 5A and 5B](http://www.cell.com/action/showImagesData?pii=S0092-8674%2815%2900634-0) of a [paper](http://dx.doi.org/10.1016/j.cell.2015.05.044) from the TCGA consortium.
+But first we need to get our heads around the biases in our data, and think about how we could improve it.
+
+### Reading in the Data with pandas
+
+We're first going to use pandas to read in the table of counts.
+pandas is a Python library for data manipulation and analysis,
+with particular emphasis on tabular and time series data.
+Here, we will use it here to read in tabular data of mixed type.
+It uses the `DataFrame` type, which is a flexible tabular format based on the data frame object in R.
+For example, the data we will read has a column of gene names (strings) and multiple columns of counts (integers), so reading it into a homogeneous array of numbers would be the wrong approach.
+Although NumPy has some support for mixed data types (called "structured arrays"), it is not primarily designed for
+this use case, which makes subsequent operations harder than they need to be.
+
+By reading the data in as a pandas data frame, we can let pandas do all the parsing, then extract out the relevant information and store it in a more efficient data type.
+Here we are just using pandas briefly to import data.
+In later chapters we will see a bit more of pandas, but for details, read *Python
+for Data Analysis* (O'Reilly) by the creator of pandas, Wes McKinney.
+
+```{python}
+import bz2
+import numpy as np
+import pandas as pd
+
+# Import TCGA melanoma data
+filename = 'data/counts.txt.bz2'
+with bz2.open(filename, 'rt') as f:
+    data_table = pd.read_csv(f, index_col=0) # Parse file with pandas
+
+print(data_table.iloc[:5, :5])
+```
+
+We can see that pandas has kindly pulled out the header row and used it to name the columns.
+The first column gives the name of each gene, and the remaining columns represent individual samples.
+
+We will also need some corresponding metadata, including the sample information and the gene lengths.
+
+```{python}
+# Sample names
+samples = list(data_table.columns)
+```
+
+We will need some information about the lengths of the genes for our normalization.
+So that we can take advantage of some fancy pandas indexing, we're going to set
+the index of the pandas table to be the gene names in the first column.
+
+```{python}
+# Import gene lengths
+filename = 'data/genes.csv'
+with open(filename, 'rt') as f:
+    # Parse file with pandas, index by GeneSymbol
+    gene_info = pd.read_csv(f, index_col=0)
+print(gene_info.iloc[:5, :])
+```
+
+Let's check how well our gene length data matches up with our count data.
+
+```{python}
+print("Genes in data_table: ", data_table.shape[0])
+print("Genes in gene_info: ", gene_info.shape[0])
+```
+
+There are more genes in our gene length data than were actually measured in the experiment.
+Let's filter so we only get the relevant genes, and we want to make sure they are
+in the same order as in our count data.
+This is where pandas indexing comes in handy!
+We can get the intersection of the gene names from our two sources of data
+and use these to index both datasets, ensuring they have the same genes in the same order.
+
+```{python}
+# Subset gene info to match the count data
+matched_index = pd.Index.intersection(data_table.index, gene_info.index)
+```
+
+Now let's use the intersection of the gene names to index our count data.
+
+```{python}
+# 2D ndarray containing expression counts for each gene in each individual
+counts = np.asarray(data_table.loc[matched_index], dtype=int)
+
+gene_names = np.array(matched_index)
+
+# Check how many genes and individuals were measured
+print(f'{counts.shape[0]} genes measured in {counts.shape[1]} individuals.')
+```
+
+And our gene lengths.
+
+```{python}
+# 1D ndarray containing the lengths of each gene
+gene_lengths = np.asarray(gene_info.loc[matched_index]['GeneLength'],
+                          dtype=int)
+```
+
+And let's check the dimensions of our objects.
+
+```{python}
+print(counts.shape)
+print(gene_lengths.shape)
+```
+
+As expected, they now match up nicely!
+
 ---
-### Exploring a Gene Expression Dataset
-#
-#The dataset that we'll be using is an RNAseq experiment of skin cancer samples from The Cancer Genome Atlas (TCGA) project (http://cancergenome.nih.gov/).
-#We've already cleaned and sorted the data for you, so you can use `data/counts.txt.bz2`
-#in the book repository.
-#In Chapter 2 we will be using this gene expression data to predict mortality in skin cancer patients, reproducing a simplified version of [Figures 5A and 5B](http://www.cell.com/action/showImagesData?pii=S0092-8674%2815%2900634-0) of a [paper](http://dx.doi.org/10.1016/j.cell.2015.05.044) from the TCGA consortium.
-#But first we need to get our heads around the biases in our data, and think about how we could improve it.
-#
-#### Reading in the Data with pandas
-#
-#We're first going to use pandas to read in the table of counts.
-#pandas is a Python library for data manipulation and analysis,
-#with particular emphasis on tabular and time series data.
-#Here, we will use it here to read in tabular data of mixed type.
-#It uses the `DataFrame` type, which is a flexible tabular format based on the data frame object in R.
-#For example, the data we will read has a column of gene names (strings) and multiple columns of counts (integers), so reading it into a homogeneous array of numbers would be the wrong approach.
-#Although NumPy has some support for mixed data types (called "structured arrays"), it is not primarily designed for
-#this use case, which makes subsequent operations harder than they need to be.
-#
-#By reading the data in as a pandas data frame, we can let pandas do all the parsing, then extract out the relevant information and store it in a more efficient data type.
-#Here we are just using pandas briefly to import data.
-#In later chapters we will see a bit more of pandas, but for details, read *Python
-#for Data Analysis* (O'Reilly) by the creator of pandas, Wes McKinney.
-#
-#```{python}
-#import bz2
-#import numpy as np
-#import pandas as pd
-#
-## Import TCGA melanoma data
-#filename = 'data/counts.txt.bz2'
-#with bz2.open(filename, 'rt') as f:
-#    data_table = pd.read_csv(f, index_col=0) # Parse file with pandas
-#
-#print(data_table.iloc[:5, :5])
-#```
-#
-#We can see that pandas has kindly pulled out the header row and used it to name the columns.
-#The first column gives the name of each gene, and the remaining columns represent individual samples.
-#
-#We will also need some corresponding metadata, including the sample information and the gene lengths.
-#
-#```{python}
-## Sample names
-#samples = list(data_table.columns)
-#```
-#
-#We will need some information about the lengths of the genes for our normalization.
-#So that we can take advantage of some fancy pandas indexing, we're going to set
-#the index of the pandas table to be the gene names in the first column.
-#
-#```{python}
-## Import gene lengths
-#filename = 'data/genes.csv'
-#with open(filename, 'rt') as f:
-#    # Parse file with pandas, index by GeneSymbol
-#    gene_info = pd.read_csv(f, index_col=0)
-#print(gene_info.iloc[:5, :])
-#```
-#
-#Let's check how well our gene length data matches up with our count data.
-#
-#```{python}
-#print("Genes in data_table: ", data_table.shape[0])
-#print("Genes in gene_info: ", gene_info.shape[0])
-#```
-#
-#There are more genes in our gene length data than were actually measured in the experiment.
-#Let's filter so we only get the relevant genes, and we want to make sure they are
-#in the same order as in our count data.
-#This is where pandas indexing comes in handy!
-#We can get the intersection of the gene names from our two sources of data
-#and use these to index both datasets, ensuring they have the same genes in the same order.
-#
-#```{python}
-## Subset gene info to match the count data
-#matched_index = pd.Index.intersection(data_table.index, gene_info.index)
-#```
-#
-#Now let's use the intersection of the gene names to index our count data.
-#
-#```{python}
-## 2D ndarray containing expression counts for each gene in each individual
-#counts = np.asarray(data_table.loc[matched_index], dtype=int)
-#
-#gene_names = np.array(matched_index)
-#
-## Check how many genes and individuals were measured
-#print(f'{counts.shape[0]} genes measured in {counts.shape[1]} individuals.')
-#```
-#
-#And our gene lengths.
-#
-#```{python}
-## 1D ndarray containing the lengths of each gene
-#gene_lengths = np.asarray(gene_info.loc[matched_index]['GeneLength'],
-#                          dtype=int)
-#```
-#
-#And let's check the dimensions of our objects.
-#
-#```{python}
-#print(counts.shape)
-#print(gene_lengths.shape)
-#```
-#
-#As expected, they now match up nicely!
-#
 ### Normalization
 #
 #Real world data contains all kinds of measurement artifacts.
