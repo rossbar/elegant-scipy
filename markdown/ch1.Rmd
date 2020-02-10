@@ -313,33 +313,33 @@ If you want to manipulate the data without touching the original, it's easy to m
 y = np.copy(x[:2])
 ```
 
+### Vectorization
+
+Earlier we talked about the speed of operations on arrays.
+One of the tricks NumPy uses to speed things up is *vectorization*.
+Vectorization is where you apply a calculation to each element in an array, without having to use a for loop.
+In addition to speeding things up, this can result in more natural, readable code.
+Let's look at some examples.
+
+```{python}
+x = np.array([1, 2, 3, 4])
+print(x * 2)
+```
+
+Here, we have `x`, an array of 4 values, and we have implicitly multiplied every element in `x` by 2, a single value.
+
+```{python}
+y = np.array([0, 1, 2, 1])
+print(x + y)
+```
+
+Now, we have added together each element in `x` to its corresponding element in `y`, an array of the same shape.
+
+Both of these operations are simple and, we hope, intuitive examples of vectorization.
+NumPy also makes them very fast, much faster than iterating over the arrays manually.
+(Feel free to play with this yourself using the `%timeit` IPython magic we saw earlier.)
+
 ---
-#### Vectorization
-#
-#Earlier we talked about the speed of operations on arrays.
-#One of the tricks NumPy uses to speed things up is *vectorization*.
-#Vectorization is where you apply a calculation to each element in an array, without having to use a for loop.
-#In addition to speeding things up, this can result in more natural, readable code.
-#Let's look at some examples.
-#
-#```{python}
-#x = np.array([1, 2, 3, 4])
-#print(x * 2)
-#```
-#
-#Here, we have `x`, an array of 4 values, and we have implicitly multiplied every element in `x` by 2, a single value.
-#
-#```{python}
-#y = np.array([0, 1, 2, 1])
-#print(x + y)
-#```
-#
-#Now, we have added together each element in `x` to its corresponding element in `y`, an array of the same shape.
-#
-#Both of these operations are simple and, we hope, intuitive examples of vectorization.
-#NumPy also makes them very fast, much faster than iterating over the arrays manually.
-#(Feel free to play with this yourself using the `%timeit` IPython magic we saw earlier.)
-#
 #### Broadcasting
 #
 #One of the most powerful and often misunderstood features of ndarrays is broadcasting.
