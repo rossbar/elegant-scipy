@@ -273,8 +273,11 @@ Arrays are also size efficient.
 In Python, each element in a list is an object and is given a healthy memory allocation (or is that unhealthy?).
 In contrast, in arrays, each element takes up just the necessary amount of memory.
 For example, an array of 64-bit integers takes up exactly 64-bits per element, plus some very small overhead for array metadata, such as the `shape` attribute we discussed in +@sec:ndarray.
-This is generally much less than would be given to objects in a Python list.
-(If you're interested in digging into how Python memory allocation works, check out Jake VanderPlas's blog post, ["Why Python Is Slow: Looking Under the Hood"](https://jakevdp.github.io/blog/2014/05/09/why-python-is-slow/).)
+This is generally much less than would be given to objects in a Python list[^vdp].
+
+[^vdp]: If you're interested in digging into how Python memory allocation works,
+    check out Jake VanderPlas's blog post,
+    ["Why Python Is Slow: Looking Under the Hood"](https://jakevdp.github.io/blog/2014/05/09/why-python-is-slow/).
 
 ---
 #Plus, when computing with arrays, you can also use *slices* that subset the array *without copying the underlying data*.
