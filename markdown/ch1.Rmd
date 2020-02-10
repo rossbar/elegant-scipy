@@ -231,7 +231,7 @@ If we store MRI values over time, we might need a 4D NumPy array.
 For now, we'll stick to 2D data.
 Later chapters will introduce higher-dimensional data and will teach you to write code that works for data of any number of dimensions.
 
-### Why Use ndarrays Instead of Python Lists?
+### Why Use ndarrays Instead of Python Lists? {#sec:ary_vs_list}
 
 Arrays are fast because they enable vectorized operations, written in the low-level language C, that act on the whole array.
 Say you have a list and you want to multiply every element in the list by five.
@@ -262,7 +262,7 @@ print(r"%", end="")
 
 Now, using NumPy's built-in *vectorized* operations:
 
-```{python ipub={'text': {'format': {'escapechar' : '\\%'}}}}
+```{python ipub={'code': {'label': 'code:vect_mult', 'asfloat': True}, 'text': {'format': {'escapechar' : '\\%'}}}}
 print(r"%", end="")
 %timeit -n10 x = array * 5
 ```
@@ -315,7 +315,7 @@ y = np.copy(x[:2])
 
 ### Vectorization
 
-Earlier we talked about the speed of operations on arrays.
+In section +@code:vect_mult we talked about the speed of operations on arrays.
 One of the tricks NumPy uses to speed things up is *vectorization*.
 Vectorization is where you apply a calculation to each element in an array, without having to use a for loop.
 In addition to speeding things up, this can result in more natural, readable code.
