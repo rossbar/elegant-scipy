@@ -435,6 +435,7 @@ with bz2.open(filename, 'rt') as f:
 
 print(data_table.iloc[:5, :5])
 ```
+TODO: Add table reference
 
 We can see that pandas has kindly pulled out the header row and used it to name the columns.
 The first column gives the name of each gene, and the remaining columns represent individual samples.
