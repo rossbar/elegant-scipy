@@ -569,9 +569,9 @@ plt.style.use('style/elegant.mplstyle')
 > on styles, check out the [Matplotlib documentation on style
 > sheets](http://matplotlib.org/users/style_sheets.html).
 
-Now back to plotting our counts distribution!
+Now back to plotting our counts distribution! 
 
-```{python}
+```{python ipub={'figure': {'label': 'fig:kde', 'caption': 'Density plot of gene expression counts per individual using KDE smoothing'}}}
 total_counts = np.sum(counts, axis=0)  # sum columns together
                                        # (axis=1 would sum rows)
 
@@ -595,7 +595,8 @@ print(f'Count statistics:\n  min:  {np.min(total_counts)}'
       f'\n  mean: {np.mean(total_counts)}'
       f'\n  max:  {np.max(total_counts)}')
 ```
-<!-- caption text="Density plot of gene expression counts per individual using KDE smoothing" -->
+
+Figure !@fig:kde visualizes the distribution of counts as estimated by KDE.
 
 ---
 #We can see that there is an order of magnitude difference in the total number of counts between the lowest and the highest individual.
