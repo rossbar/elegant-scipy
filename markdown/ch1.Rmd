@@ -422,6 +422,7 @@ Here we are just using pandas briefly to import data.
 In later chapters we will see a bit more of pandas, but for details, read *Python
 for Data Analysis* (O'Reilly) by the creator of pandas, Wes McKinney.
 
+TODO: Prettify table with `nb_setup` or `IPython.display.display`
 ```{python}
 import bz2
 import numpy as np
