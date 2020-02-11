@@ -534,6 +534,7 @@ estimation (KDE), a technique commonly used to smooth out histograms because it
 gives a clearer picture of the underlying distribution.
 
 Before we start, we have to do some plotting setup (which we will do in every
+TODO: figure out how to reference a block quote via the \ref mechanism
 chapter). See "A quick note on plotting" for details about each line of the following code.
 
 ```{python}
@@ -545,7 +546,7 @@ plt.style.use('style/elegant.mplstyle')
 ```
 
 
-> **A Quick Note on Plotting {.callout}**
+> **A Quick Note on Plotting**
 >
 > The preceding code does a few neat things to make our plots prettier.
 >
