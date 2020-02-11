@@ -391,6 +391,7 @@ print(outer.shape)
 You can see for yourself that `outer[i, j] = x[i] * y[j]` for all `(i, j)`.
 
 This was accomplished by NumPy's [broadcasting rules](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html), which implicitly expand dimensions of size 1 in one array to match the corresponding dimension of the other array.
+TODO - Figure out internal referencing for [later in this chapter].
 Don't worry, we will talk about these rules in more detail later in this chapter.
 
 As we will see in the rest of the chapter, as we explore real data, broadcasting is extremely valuable for real-world calculations on arrays of data.
@@ -398,9 +399,10 @@ It allows us to express complex operations concisely and efficiently.
 
 ## Exploring a Gene Expression Dataset
 
-The dataset that we'll be using is an RNAseq experiment of skin cancer samples from The Cancer Genome Atlas (TCGA) project (http://cancergenome.nih.gov/).
+The dataset that we'll be using is an RNAseq experiment of skin cancer samples from [The Cancer Genome Atlas (TCGA) project](http://cancergenome.nih.gov/).
 We've already cleaned and sorted the data for you, so you can use `data/counts.txt.bz2`
 in the book repository.
+TODO - Chapter 2 xref (below)
 In Chapter 2 we will be using this gene expression data to predict mortality in skin cancer patients, reproducing a simplified version of [Figures 5A and 5B](http://www.cell.com/action/showImagesData?pii=S0092-8674%2815%2900634-0) of a [paper](http://dx.doi.org/10.1016/j.cell.2015.05.044) from the TCGA consortium.
 But first we need to get our heads around the biases in our data, and think about how we could improve it.
 
