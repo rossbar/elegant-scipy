@@ -630,7 +630,7 @@ def reduce_xaxis_labels(ax, factor):
         label.set_visible(True)
 ```
 
-```{python}
+```{python ipub={'figure': {'label': 'fig:ge_box', 'caption': 'Boxplot of gene expression counts per individual'}}}
 # Box plot of expression counts by individual
 fig, ax = plt.subplots(figsize=(4.8, 2.4))
 
@@ -640,7 +640,6 @@ with plt.style.context('style/thinner.mplstyle'):
     ax.set_ylabel("Gene expression counts")
     reduce_xaxis_labels(ax, 5)
 ```
-<!-- caption text="Boxplot of gene expression counts per individual" -->
 
 ---
 #There are obviously a lot of outliers at the high expression end of the scale and a lot of variation between individuals, but these are hard to see because everything is clustered around zero.
