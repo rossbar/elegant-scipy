@@ -569,35 +569,35 @@ plt.style.use('style/elegant.mplstyle')
 > on styles, check out the [Matplotlib documentation on style
 > sheets](http://matplotlib.org/users/style_sheets.html).
 
+Now back to plotting our counts distribution!
+
+```{python}
+total_counts = np.sum(counts, axis=0)  # sum columns together
+                                       # (axis=1 would sum rows)
+
+from scipy import stats
+
+# Use Gaussian smoothing to estimate the density
+density = stats.kde.gaussian_kde(total_counts)
+
+# Make values for which to estimate the density, for plotting
+x = np.arange(min(total_counts), max(total_counts), 10000)
+
+# Make the density plot
+fig, ax = plt.subplots()
+ax.plot(x, density(x))
+ax.set_xlabel("Total counts per individual")
+ax.set_ylabel("Density")
+
+plt.show()
+
+print(f'Count statistics:\n  min:  {np.min(total_counts)}'
+      f'\n  mean: {np.mean(total_counts)}'
+      f'\n  max:  {np.max(total_counts)}')
+```
+<!-- caption text="Density plot of gene expression counts per individual using KDE smoothing" -->
+
 ---
-#Now back to plotting our counts distribution!
-#
-#```{python}
-#total_counts = np.sum(counts, axis=0)  # sum columns together
-#                                       # (axis=1 would sum rows)
-#
-#from scipy import stats
-#
-## Use Gaussian smoothing to estimate the density
-#density = stats.kde.gaussian_kde(total_counts)
-#
-## Make values for which to estimate the density, for plotting
-#x = np.arange(min(total_counts), max(total_counts), 10000)
-#
-## Make the density plot
-#fig, ax = plt.subplots()
-#ax.plot(x, density(x))
-#ax.set_xlabel("Total counts per individual")
-#ax.set_ylabel("Density")
-#
-#plt.show()
-#
-#print(f'Count statistics:\n  min:  {np.min(total_counts)}'
-#      f'\n  mean: {np.mean(total_counts)}'
-#      f'\n  max:  {np.max(total_counts)}')
-#```
-#<!-- caption text="Density plot of gene expression counts per individual using KDE smoothing" -->
-#
 #We can see that there is an order of magnitude difference in the total number of counts between the lowest and the highest individual.
 #This means that a different number of RNAseq reads were generated for each individual.
 #We say that these individuals have different library sizes.
