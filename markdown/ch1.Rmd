@@ -598,54 +598,54 @@ print(f'Count statistics:\n  min:  {np.min(total_counts)}'
 
 Figure !@fig:kde visualizes the distribution of counts as estimated by KDE.
 
+We can see that there is an order of magnitude difference in the total number of counts between the lowest and the highest individual.
+This means that a different number of RNAseq reads were generated for each individual.
+We say that these individuals have different library sizes.
+
+#### Normalizing library size between samples
+
+Let's take a closer look at ranges of gene expression for each individual, so when
+we apply our normalization we can see it in action. We'll subset a random sample
+of just 70 columns to keep the plotting from getting too messy.
+
+```{python}
+# Subset data for plotting
+np.random.seed(seed=7) # Set seed so we will get consistent results
+# Randomly select 70 samples
+samples_index = np.random.choice(range(counts.shape[1]), size=70, replace=False)
+counts_subset = counts[:, samples_index]
+```
+
+```{python}
+# Some custom x-axis labelling to make our plots easier to read
+def reduce_xaxis_labels(ax, factor):
+    """Show only every ith label to prevent crowding on x-axis
+        e.g. factor = 2 would plot every second x-axis label,
+        starting at the first.
+
+    Parameters
+    ----------
+    ax : matplotlib plot axis to be adjusted
+    factor : int, factor to reduce the number of x-axis labels by
+    """
+    plt.setp(ax.xaxis.get_ticklabels(), visible=False)
+    for label in ax.xaxis.get_ticklabels()[factor-1::factor]:
+        label.set_visible(True)
+```
+
+```{python}
+# Box plot of expression counts by individual
+fig, ax = plt.subplots(figsize=(4.8, 2.4))
+
+with plt.style.context('style/thinner.mplstyle'):
+    ax.boxplot(counts_subset)
+    ax.set_xlabel("Individuals")
+    ax.set_ylabel("Gene expression counts")
+    reduce_xaxis_labels(ax, 5)
+```
+<!-- caption text="Boxplot of gene expression counts per individual" -->
+
 ---
-#We can see that there is an order of magnitude difference in the total number of counts between the lowest and the highest individual.
-#This means that a different number of RNAseq reads were generated for each individual.
-#We say that these individuals have different library sizes.
-#
-##### Normalizing library size between samples
-#
-#Let's take a closer look at ranges of gene expression for each individual, so when
-#we apply our normalization we can see it in action. We'll subset a random sample
-#of just 70 columns to keep the plotting from getting too messy.
-#
-#```{python}
-## Subset data for plotting
-#np.random.seed(seed=7) # Set seed so we will get consistent results
-## Randomly select 70 samples
-#samples_index = np.random.choice(range(counts.shape[1]), size=70, replace=False)
-#counts_subset = counts[:, samples_index]
-#```
-#
-#```{python}
-## Some custom x-axis labelling to make our plots easier to read
-#def reduce_xaxis_labels(ax, factor):
-#    """Show only every ith label to prevent crowding on x-axis
-#        e.g. factor = 2 would plot every second x-axis label,
-#        starting at the first.
-#
-#    Parameters
-#    ----------
-#    ax : matplotlib plot axis to be adjusted
-#    factor : int, factor to reduce the number of x-axis labels by
-#    """
-#    plt.setp(ax.xaxis.get_ticklabels(), visible=False)
-#    for label in ax.xaxis.get_ticklabels()[factor-1::factor]:
-#        label.set_visible(True)
-#```
-#
-#```{python}
-## Box plot of expression counts by individual
-#fig, ax = plt.subplots(figsize=(4.8, 2.4))
-#
-#with plt.style.context('style/thinner.mplstyle'):
-#    ax.boxplot(counts_subset)
-#    ax.set_xlabel("Individuals")
-#    ax.set_ylabel("Gene expression counts")
-#    reduce_xaxis_labels(ax, 5)
-#```
-#<!-- caption text="Boxplot of gene expression counts per individual" -->
-#
 #There are obviously a lot of outliers at the high expression end of the scale and a lot of variation between individuals, but these are hard to see because everything is clustered around zero.
 #So let's do log(n + 1) of our data so it's a bit easier to look at.
 #Both the log function and the n + 1 step can be done using broadcasting to simplify our code and speed things up.
