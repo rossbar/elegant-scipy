@@ -743,25 +743,25 @@ ax.set_xlabel('sample number')
 ax.set_ylabel('log gene expression counts');
 ```
 
+You can see that the normalized distributions are a little more similar
+when we take library size (the sum of those distributions) into account.
+Now we are comparing like with like between the samples!
+But what about differences between the genes?
+
+### Between Genes
+
+We can also get into some trouble when trying to compare different genes.
+The number of counts for a gene is related to the gene length.
+Suppose gene B is twice as long as gene A.
+Both are expressed at similar levels in the sample (i.e., both produce a similar number of mRNA molecules).
+Remember that in RNAseq experiment, we fragment the transcripts, and sample reads from that pool of fragments, as +@fig:gene_len illustrates.
+So if a gene is twice as long, it'll produce twice as many fragments, and we are twice as likely to sample it.
+Therefore, we would expect gene B to have about twice as many counts as gene A.
+If we want to compare the expression levels of different genes, we will have to do some more normalization.
+
+![Relationship between counts and gene length](../figures/gene_length_counts.png){#fig:gene_len}
+
 ---
-#You can see that the normalized distributions are a little more similar
-#when we take library size (the sum of those distributions) into account.
-#Now we are comparing like with like between the samples!
-#But what about differences between the genes?
-#
-#### Between Genes
-#
-#We can also get into some trouble when trying to compare different genes.
-#The number of counts for a gene is related to the gene length.
-#Suppose gene B is twice as long as gene A.
-#Both are expressed at similar levels in the sample (i.e., both produce a similar number of mRNA molecules).
-#Remember that in RNAseq experiment, we fragment the transcripts, and sample reads from that pool of fragments.
-#So if a gene is twice as long, it'll produce twice as many fragments, and we are twice as likely to sample it.
-#Therefore, we would expect gene B to have about twice as many counts as gene A.
-#If we want to compare the expression levels of different genes, we will have to do some more normalization.
-#
-#![Relationship between counts and gene length](../figures/gene_length_counts.png)
-#
 #Let's see if the relationship between gene length and counts plays out in our dataset.
 #First, we define a utility function for plotting:
 #
