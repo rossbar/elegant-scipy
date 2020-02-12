@@ -681,70 +681,69 @@ Also notice how we used broadcasting twice there: once to divide all the gene
 expression counts by the total for that column, and then again to multiply all
 the values by 1 million.
 
+Finally, let's compare our normalized data to the raw data.
+
+```{python}
+import itertools as it
+from collections import defaultdict
+
+
+def class_boxplot(data, classes, colors=None, **kwargs):
+    """Make a boxplot with boxes colored according to the class they belong to.
+
+    Parameters
+    ----------
+    data : list of array-like of float
+        The input data. One boxplot will be generated for each element
+        in `data`.
+    classes : list of string, same length as `data`
+        The class each distribution in `data` belongs to.
+
+    Other parameters
+    ----------------
+    kwargs : dict
+        Keyword arguments to pass on to `plt.boxplot`.
+    """
+    all_classes = sorted(set(classes))
+    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+    class2color = dict(zip(all_classes, it.cycle(colors)))
+
+    # map classes to data vectors
+    # other classes get an empty list at that position for offset
+    class2data = defaultdict(list)
+    for distrib, cls in zip(data, classes):
+        for c in all_classes:
+            class2data[c].append([])
+        class2data[cls][-1] = distrib
+
+    # then, do each boxplot in turn with the appropriate color
+    fig, ax = plt.subplots()
+    lines = []
+    for cls in all_classes:
+        # set color for all elements of the boxplot
+        for key in ['boxprops', 'whiskerprops', 'flierprops']:
+            kwargs.setdefault(key, {}).update(color=class2color[cls])
+        # draw the boxplot
+        box = ax.boxplot(class2data[cls], **kwargs)
+        lines.append(box['whiskers'][0])
+    ax.legend(lines, all_classes)
+    return ax
+```
+
+Now we can plot a colored boxplot according to normalized versus unnormalized samples.
+We show only three samples from each class for illustration:
+
+```{python ipub={'figure': {'label': 'fig:ge_box', 'caption': 'Comparison of raw and library-normalized gene expression counts in three samples (log scale)'}}}
+log_counts_3 = list(np.log(counts.T[:3] + 1))
+log_ncounts_3 = list(np.log(counts_lib_norm.T[:3] + 1))
+ax = class_boxplot(log_counts_3 + log_ncounts_3,
+                   ['raw counts'] * 3 + ['normalized by library size'] * 3,
+                   labels=[1, 2, 3, 1, 2, 3])
+ax.set_xlabel('sample number')
+ax.set_ylabel('log gene expression counts');
+```
+
 ---
-#Finally, let's compare our normalized data to the raw data.
-#
-#```{python}
-#import itertools as it
-#from collections import defaultdict
-#
-#
-#def class_boxplot(data, classes, colors=None, **kwargs):
-#    """Make a boxplot with boxes colored according to the class they belong to.
-#
-#    Parameters
-#    ----------
-#    data : list of array-like of float
-#        The input data. One boxplot will be generated for each element
-#        in `data`.
-#    classes : list of string, same length as `data`
-#        The class each distribution in `data` belongs to.
-#
-#    Other parameters
-#    ----------------
-#    kwargs : dict
-#        Keyword arguments to pass on to `plt.boxplot`.
-#    """
-#    all_classes = sorted(set(classes))
-#    colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-#    class2color = dict(zip(all_classes, it.cycle(colors)))
-#
-#    # map classes to data vectors
-#    # other classes get an empty list at that position for offset
-#    class2data = defaultdict(list)
-#    for distrib, cls in zip(data, classes):
-#        for c in all_classes:
-#            class2data[c].append([])
-#        class2data[cls][-1] = distrib
-#
-#    # then, do each boxplot in turn with the appropriate color
-#    fig, ax = plt.subplots()
-#    lines = []
-#    for cls in all_classes:
-#        # set color for all elements of the boxplot
-#        for key in ['boxprops', 'whiskerprops', 'flierprops']:
-#            kwargs.setdefault(key, {}).update(color=class2color[cls])
-#        # draw the boxplot
-#        box = ax.boxplot(class2data[cls], **kwargs)
-#        lines.append(box['whiskers'][0])
-#    ax.legend(lines, all_classes)
-#    return ax
-#```
-#
-#Now we can plot a colored boxplot according to normalized versus unnormalized samples.
-#We show only three samples from each class for illustration:
-#
-#```{python}
-#log_counts_3 = list(np.log(counts.T[:3] + 1))
-#log_ncounts_3 = list(np.log(counts_lib_norm.T[:3] + 1))
-#ax = class_boxplot(log_counts_3 + log_ncounts_3,
-#                   ['raw counts'] * 3 + ['normalized by library size'] * 3,
-#                   labels=[1, 2, 3, 1, 2, 3])
-#ax.set_xlabel('sample number')
-#ax.set_ylabel('log gene expression counts');
-#```
-#<!-- caption text="Comparing raw and library normalized gene expression counts in three samples (log scale)" -->
-#
 #You can see that the normalized distributions are a little more similar
 #when we take library size (the sum of those distributions) into account.
 #Now we are comparing like with like between the samples!
