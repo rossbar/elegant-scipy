@@ -961,10 +961,11 @@ L = gene_lengths  # lengths for each gene, matching rows in `C`
 > resources, including the Goldberg paper.
 
 First, we multiply by $10^9$.
-Because counts (C) is an ndarray, we can use broadcasting.
+Because counts (`C`) is an ndarray, we can use broadcasting.
 If we multiple an ndarray by a single value,
 that value is broadcast over the entire array.
 
+TODO: Again, reference in code comment to a callout
 ```{python}
 # Multiply all counts by $10^9$. Note that ^ in Python is bitwise-or.
 # Exponentiation is denoted by `**`
@@ -1005,7 +1006,8 @@ broadcast, we have to *ap*pend a dimension to B, manually. Then, we end up with
 $(2, 5)$ and $(2, 1)$, and broadcasting can proceed.
 
 In NumPy, we can explicitly add a new dimension to B using `np.newaxis`.
-Let's see this in our normalization by RPKM.
+Let's leverage this in our application of the RPKM formula (+@eq:rpkm) to the
+entire counts array.
 
 Let's look at the dimensions of our arrays.
 
@@ -1035,6 +1037,7 @@ print('L.shape', L.shape)
 
 Now that our dimensions match or are equal to 1, we can broadcast.
 
+TODO: Hint callout about in-place operators?
 ```{python}
 # Divide each row by the gene length for that gene (L)
 C_tmp = C_tmp / L
@@ -1110,16 +1113,19 @@ def rpkm(counts, lengths):
     return(normed)
 ```
 
+TODO: Callout about docstrings & numpydoc docstring formatting?
+
 ```{python}
 counts_rpkm = rpkm(counts, gene_lengths)
 ```
 
 #### RPKM between gene normalization
 
-Let's see the RPKM normalization's effect in action. First, as a reminder, here's
-the distribution of mean log counts as a function of gene length:
+Let's see the RPKM normalization's effect in action. First, as a reminder, let's
+reproduce +@fig:lgen_len which shows the distribution of mean log counts as a
+function of gene length:
 
-```{python}
+```{python ipub={'figure': {'caption':'Reproduction of +@fig:lgen_len'}}}
 log_counts = np.log(counts + 1)
 mean_log_counts = np.mean(log_counts, axis=1)
 log_gene_lengths = np.log(gene_lengths)
@@ -1128,11 +1134,10 @@ with plt.style.context('style/thinner.mplstyle'):
     # Keep track of axis object so that the next plot can have the same scale
     unnormalized_ax = binned_boxplot(x=log_gene_lengths, y=mean_log_counts)
 ```
-<!-- caption text="The relationship between gene length and average expression before RPKM normalization (log scale)" -->
 
 Now, the same plot with the RPKM-normalized values:
 
-```{python}
+```{python ipub={'figure': {'label': 'fig:rpkm', 'caption': 'Average counts versus gene length after RPKM normalization'}}}
 log_counts = np.log(counts_rpkm + 1)
 mean_log_counts = np.mean(log_counts, axis=1)
 log_gene_lengths = np.log(gene_lengths)
@@ -1152,7 +1157,7 @@ RPKM normalization can be useful to compare the expression profile of different 
 We've already seen that longer genes have higher counts, but this doesn't mean their expression level is actually higher.
 Let's choose a short gene and a long gene and compare their counts before and after RPKM normalization to see what we mean.
 
-```{python}
+```{python ipub={'figure': {'label': 'fig:gene_comp_unnorm', 'caption': 'Comparing expression of two genes before RPKM normalization'}}}
 gene_idxs = np.nonzero((gene_names == 'RPL24') |
                        (gene_names == 'TXNDC5'))
 gene1, gene2 = gene_names[gene_idxs]
@@ -1168,31 +1173,32 @@ ax = class_boxplot(log_counts,
 ax.set_xlabel('Genes')
 ax.set_ylabel('log gene expression counts over all samples');
 ```
-<!-- caption text="Comparing expression of two genes before RPKM normalization" -->
 
 If we look just at the raw counts, it looks like the longer gene, TXNDC5, is expressed
 slightly more than the shorter one, RPL24.
 But, after RPKM normalization, a different picture emerges:
 
-```{python}
+```{python ipub={'figure': {'label': 'fig:gene_comp_rpkm', 'caption': 'Comparing expression of two genes after RPKM normalization'}}}
 ax = class_boxplot(log_ncounts,
                    ['RPKM normalized'] * 3,
                    labels=gene_labels)
 ax.set_xlabel('Genes')
 ax.set_ylabel('log RPKM gene expression counts over all samples');
 ```
-<!-- caption text="Comparing expression of two genes after RPKM normalization" -->
 
 Now it looks like RPL24 is actually expressed at a much higher level than TXNDC5.
-This is because RPKM includes normalization for gene length, so we can now directly compare between genes of different lengths.
+A direct comparison of +@fig:gene_comp_unnorm and +@fig:gene_comp_rpkm 
+clearly illustrates the necessity of normalization: we can now directly compare
+between genes of different lengths.
 
 ## Taking Stock
 
 So far we have done the following:
-- Imported data using pandas
-- Become familiar with the key NumPy object class — the ndarray
+- Imported data using `pandas`
+- Become familiar with the key NumPy object class — the `ndarray`
 - Used the power of broadcasting to make our calculations more elegant.
 
+TODO: Add ref to chapter 2.
 In Chapter 2 we will continue working with the same dataset, implementing a
 more sophisticated normalization technique, then use clustering to make some
 predictions about mortality in skin cancer patients.
