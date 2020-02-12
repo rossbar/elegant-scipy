@@ -761,59 +761,59 @@ If we want to compare the expression levels of different genes, we will have to 
 
 ![Relationship between counts and gene length](../figures/gene_length_counts.png){#fig:gene_len}
 
+Let's see if the relationship between gene length and counts plays out in our dataset.
+First, we define a utility function for plotting:
+
+```{python}
+def binned_boxplot(x, y, *,  # check out this Python 3 exclusive! (*see tip box)
+                   xlabel='gene length (log scale)',
+                   ylabel='average log counts'):
+    """Plot the distribution of `y` dependent on `x` using many boxplots.
+
+    Note: all inputs are expected to be log-scaled.
+
+    Parameters
+    ----------
+    x: 1D array of float
+        Independent variable values.
+    y: 1D array of float
+        Dependent variable values.
+    """
+    # Define bins of `x` depending on density of observations
+    x_hist, x_bins = np.histogram(x, bins='auto')
+
+    # Use `np.digitize` to number the bins
+    # Discard the last bin edge because it breaks the right-open assumption
+    # of `digitize`. The max observation correctly goes into the last bin.
+    x_bin_idxs = np.digitize(x, x_bins[:-1])
+
+    # Use those indices to create a list of arrays, each containing the `y`
+    # values corresponding to `x`s in that bin. This is the input format
+    # expected by `plt.boxplot`
+    binned_y = [y[x_bin_idxs == i]
+                for i in range(np.max(x_bin_idxs))]
+    fig, ax = plt.subplots(figsize=(4.8,1))
+
+    # Make the x-axis labels using the bin centers
+    x_bin_centers = (x_bins[1:] + x_bins[:-1]) / 2
+    x_ticklabels = np.round(np.exp(x_bin_centers)).astype(int)
+
+    # make the boxplot
+    ax.boxplot(binned_y, labels=x_ticklabels)
+
+    # show only every 10th label to prevent crowding on x-axis
+    reduce_xaxis_labels(ax, 10)
+
+    # Adjust the axis names
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    return ax
+```
+
+
+
+
 ---
-#Let's see if the relationship between gene length and counts plays out in our dataset.
-#First, we define a utility function for plotting:
-#
-#```{python}
-#def binned_boxplot(x, y, *,  # check out this Python 3 exclusive! (*see tip box)
-#                   xlabel='gene length (log scale)',
-#                   ylabel='average log counts'):
-#    """Plot the distribution of `y` dependent on `x` using many boxplots.
-#
-#    Note: all inputs are expected to be log-scaled.
-#
-#    Parameters
-#    ----------
-#    x: 1D array of float
-#        Independent variable values.
-#    y: 1D array of float
-#        Dependent variable values.
-#    """
-#    # Define bins of `x` depending on density of observations
-#    x_hist, x_bins = np.histogram(x, bins='auto')
-#
-#    # Use `np.digitize` to number the bins
-#    # Discard the last bin edge because it breaks the right-open assumption
-#    # of `digitize`. The max observation correctly goes into the last bin.
-#    x_bin_idxs = np.digitize(x, x_bins[:-1])
-#
-#    # Use those indices to create a list of arrays, each containing the `y`
-#    # values corresponding to `x`s in that bin. This is the input format
-#    # expected by `plt.boxplot`
-#    binned_y = [y[x_bin_idxs == i]
-#                for i in range(np.max(x_bin_idxs))]
-#    fig, ax = plt.subplots(figsize=(4.8,1))
-#
-#    # Make the x-axis labels using the bin centers
-#    x_bin_centers = (x_bins[1:] + x_bins[:-1]) / 2
-#    x_ticklabels = np.round(np.exp(x_bin_centers)).astype(int)
-#
-#    # make the boxplot
-#    ax.boxplot(binned_y, labels=x_ticklabels)
-#
-#    # show only every 10th label to prevent crowding on x-axis
-#    reduce_xaxis_labels(ax, 10)
-#
-#    # Adjust the axis names
-#    ax.set_xlabel(xlabel)
-#    ax.set_ylabel(ylabel)
-#    return ax
-#```
-#
-#
-#
-#
 #
 #> **Python 3 Tip: using `*` to create keyword-only arguments {.callout}**
 #>
