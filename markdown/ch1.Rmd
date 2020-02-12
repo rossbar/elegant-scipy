@@ -867,6 +867,7 @@ How do we account for this?
 
 ### Normalizing Over Samples and Genes: RPKM
 
+TODO: Acronym table
 One of the simplest normalization methods for RNAseq data is RPKM: reads per
 kilobase transcript per million reads.
 RPKM puts together the ideas of normalizing by sample and by gene.
