@@ -814,388 +814,386 @@ def binned_boxplot(x, y, *,  # check out this Python 3 exclusive! (*see tip box)
 
 
 
----
-#
-#> **Python 3 Tip: using `*` to create keyword-only arguments {.callout}**
-#>
-#> Since version 3.0 Python allows
-#> ["keyword-only" arguments](https://www.python.org/dev/peps/pep-3102/).
-#> These are arguments that you have to call using a keyword, rather than relying
-#> on position alone.
-#> For example, you can call the `binned_boxplot` we just wrote like so:
-#>
-#>     >>> binned_boxplot(x, y, xlabel='my x label', ylabel='my y label')
-#>
-#> but not this, which would have been valid Python 2, but raises an error in
-#> Python 3:
-#>
-#>     >>> binned_boxplot(x, y, 'my x label', 'my y label')
-#>
-#>     ---------------------------------------------------------------------------
-#>     TypeError                                 Traceback (most recent call last)
-#>     <ipython-input-58-7a118d2d5750in <module>()
-#>         1 x_vals = [1, 2, 3, 4, 5]
-#>         2 y_vals = [1, 2, 3, 4, 5]
-#>     ----3 binned_boxplot(x, y, 'my x label', 'my y label')
-#>
-#>     TypeError: binned_boxplot() takes 2 positional arguments but 4 were given
-#>
-#> The idea is to prevent you from accidentally doing something like this:
-#>
-#>     binned_boxplot(x, y, 'my y label')
-#>
-#> which would give you your y label on the x-axis, and is a common error for
-#> signatures with many optional parameters that don't have an obvious ordering.
-#
-#We now compute the gene lengths and counts:
-#
-#```{python}
-#log_counts = np.log(counts_lib_norm + 1)
-#mean_log_counts = np.mean(log_counts, axis=1)  # across samples
-#log_gene_lengths = np.log(gene_lengths)
-#```
-#
-#And we plot the counts as a function of gene length:
-#
-#```{python}
-#with plt.style.context('style/thinner.mplstyle'):
-#    binned_boxplot(x=log_gene_lengths, y=mean_log_counts);
-#```
-#
-#We can see in the previous image that the longer a gene is, the higher its measured counts! As
-#previously explained, this is an artifact of the technique, not a biological signal!
-#How do we account for this?
-#
-#### Normalizing Over Samples and Genes: RPKM
-#
-#One of the simplest normalization methods for RNAseq data is RPKM: reads per
-#kilobase transcript per million reads.
-#RPKM puts together the ideas of normalizing by sample and by gene.
-#When we calculate RPKM, we are normalizing for both the library size (the sum of each column)
-#and the gene length.
-#
-#To work through how RPKM is derived, let's define the following values:
-#
-#- $C$ = Number of reads mapped to a gene
-#- $L$ = Exon length in base-pairs for a gene
-#- $N$ = Total mapped reads in the experiment
-#
-#First, let's calculate reads per kilobase.
-#
-#Reads per base would be:
-#$\frac{C}{L}$
-#
-#The formula asks for reads per kilobase instead of reads per base.
-#One kilobase = 1,000 bases, so we'll need to divide length (L) by 1,000.
-#
-#Reads per kilobase would be:
-#
-#$\frac{C}{L/1000}  = \frac{10^3C}{L}$
-#
-#Next, we need to normalize by library size.
-#If we just divide by the number of mapped reads we get:
-#
-#$ \frac{10^3C}{LN} $
-#
-#But biologists like thinking in millions of reads so that the numbers don't get
-#too small. Counting per million reads we get:
-#
-#$ \frac{10^3C}{L(N/10^6)} = \frac{10^9C}{LN}$
-#
-#In summary, to calculate reads per kilobase transcript per million reads:
-#$RPKM = \frac{10^9C}{LN}$
-#
-#Now let's implement RPKM over the entire counts array.
-#
-#```{python}
-## Make our variable names the same as the RPKM formula so we can compare easily
-#C = counts
-#N = np.sum(counts, axis=0)  # sum each column to get total reads per sample
-#L = gene_lengths  # lengths for each gene, matching rows in `C`
-#```
-#
-#> **Tip: Numbers and computers {.callout}**
-#>
-#> We can't cover everything you need to know about numeric representations
-#> in computers in just a tip box, but you *should* know that numbers are
-#> represented as "n-bit" "integer" or "floating point" numbers in
-#> the computer. As an example, a 32-bit precision integer is an integer
-#> number (no decimal point) represented as a string of 0s and 1s of width
-#> 32. And, just like you can't represent a number larger than 9999 ($10^4-1$)
-#> if you have a length-4 array of numbers, you can't represent a number
-#> larger than $2^32 - 1 \approx 4 \times 10^9$ if you are using 32-bit
-#> integers, or $2^31 - 1 \approx 2 \times 10^9$ if you want to have negative
-#> numbers (because you need one of the 32 bits to indicate sign).
-#>
-#> So what happens when you go over that limit? You can try it with the
-#> following code:
-#>
-#>     >>> 2**31 - 1
-#>     2147483647
-#>     >>> np.array([2147483647], dtype=np.int32) + 1
-#>     array([-2147483648], dtype=int32)
-#>
-#> As you can see, it just ticks over, without warning!
-#>
-#> Floating point numbers can express much larger numbers, at the cost of some
-#> precision:
-#>
-#>     >>> np.float32(2**96)
-#>     7.9228163e+28
-#>     >>> np.float32(2**96) == np.float32(2**96 + 1)
-#>     True
-#>
-#> As mentioned, we can't go into all the subtleties of dealing with these
-#> errors, but it's probably what we are avoiding if you see us converting an
-#> array with `.astype(float)`!
-#>
-#> The paper "What Every Computer Scientist Should Know About Floating-Point
-#> Arithmetic", by David Goldberg, contains a lot of detail about this, if you
-#> are curious. A free version is available at
-#> https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
-#> . Somewhat more amusingly, try:
-#>
-#>     >>> np.sum(np.array([0.1 + 0.2], dtype=np.float64))
-#>     0.30000000000000004
-#>
-#> Then, copy that value to go to http://0.30000000000000004.com, which
-#> contains a very concise explanation of the problem and links to further
-#> resources, including the Goldberg paper.
-#
-#First, we multiply by $10^9$.
-#Because counts (C) is an ndarray, we can use broadcasting.
-#If we multiple an ndarray by a single value,
-#that value is broadcast over the entire array.
-#
-#```{python}
-## Multiply all counts by $10^9$. Note that ^ in Python is bitwise-or.
-## Exponentiation is denoted by `**`
-## Avoid overflow by converting C to float, see tip "Numbers and computers"
-#C_tmp = 10**9 * C.astype(float)
-#```
-#
-#Next we need to divide by the gene length.
-#Broadcasting a single value over a 2D array was pretty clear.
-#We were just multiplying every element in the array by the value.
-#But what happens when we need to divide a 2D array by a 1D array?
-#
-##### Broadcasting rules
-#
-#Broadcasting allows calculations between ndarrays that have different shapes.
-#Numpy uses broadcasting rules to make these manipulations a little easier.
-#When two arrays have the same number of dimensions,
-#broadcasting can occur if the sizes of each dimension match,
-#or one of them is equal to 1.
-#If arrays have different numbers of dimensions, then $(1,)$ is prepended to the
-#shorter array until the numbers match, and then the standard broadcasting rules
-#apply.
-#
-#For example, suppose we have two ndarrays, A and B, with shapes $(5, 2)$ and
-#$(2,)$.
-#We define the product `A * B` using broadcasting.
-#B has fewer dimensions than A, so during the calculation,
-#a new dimension is prepended to B with value 1, so B's new shape is $(1, 2)$.
-#Finally, where B's shape doesn't match A's, it is *multiplied* by stacking enough
-#versions of B, giving the shape $(5, 2)$. This is done "virtually", without using
-#up any additional memory. At this point, the product is just an element-wise
-#multiplication, giving an output array of the same shape as A.
-#
-#Now let's say we have another array, C, of shape $(2, 5)$. To multiply (or add) C 
-#to B, we might try to prepend $(1,)$ to the shape of B, but in that case, we still
-#end up with incompatible shapes: $(2, 5)$ and $(1, 2)$. If we want the arrays to
-#broadcast, we have to *ap*pend a dimension to B, manually. Then, we end up with
-#$(2, 5)$ and $(2, 1)$, and broadcasting can proceed.
-#
-#In NumPy, we can explicitly add a new dimension to B using `np.newaxis`.
-#Let's see this in our normalization by RPKM.
-#
-#Let's look at the dimensions of our arrays.
-#
-#```{python}
-#print('C_tmp.shape', C_tmp.shape)
-#print('L.shape', L.shape)
-#```
-#
-#We can see that `C_tmp` has two dimensions, while `L` has one.
-#So during broadcasting, an additional dimension will be prepended to `L`.
-#Then we will have:
-#
-#```
-#C_tmp.shape (20500, 375)
-#L.shape (1, 20500)
-#```
-#
-#The dimensions won't match!
-#We want to broadcast L over the first dimension of `C_tmp`,
-#so we need to adjust the dimensions of L ourselves.
-#
-#```{python}
-#L = L[:, np.newaxis] # append a dimension to L, with value 1
-#print('C_tmp.shape', C_tmp.shape)
-#print('L.shape', L.shape)
-#```
-#
-#Now that our dimensions match or are equal to 1, we can broadcast.
-#
-#```{python}
-## Divide each row by the gene length for that gene (L)
-#C_tmp = C_tmp / L
-#```
-#
-#Finally we need to normalize by the library size,
-#the total number of counts for that column.
-#Remember that we have already calculated $N$ with:
-#
-#```{python}
-#N = np.sum(counts, axis=0) # sum each column to get total reads per sample
-#```
-#
-#```{python}
-## Check the shapes of C_tmp and N
-#print('C_tmp.shape', C_tmp.shape)
-#print('N.shape', N.shape)
-#```
-#
-#Once we trigger broadcasting, an additional dimension will be
-#prepended to N:
-#
-#`N.shape (1, 375)`
-#
-#The dimensions will match so we don't have to do anything.
-#However, for readability, it can be useful to add the extra dimension to N anyway.
-#
-#```{python}
-## Divide each column by the total counts for that column (N)
-#N = N[np.newaxis, :]
-#print('C_tmp.shape', C_tmp.shape)
-#print('N.shape', N.shape)
-#```
-#
-#```{python}
-## Divide each column by the total counts for that column (N)
-#rpkm_counts = C_tmp / N
-#```
-#
-#Let's put this in a function so we can reuse it.
-#
-#```{python}
-#def rpkm(counts, lengths):
-#    """Calculate reads per kilobase transcript per million reads.
-#
-#    RPKM = (10^9 * C) / (N * L)
-#
-#    Where:
-#    C = Number of reads mapped to a gene
-#    N = Total mapped reads in the experiment
-#    L = Exon length in base pairs for a gene
-#
-#    Parameters
-#    ----------
-#    counts: array, shape (N_genes, N_samples)
-#        RNAseq (or similar) count data where columns are individual samples
-#        and rows are genes.
-#    lengths: array, shape (N_genes,)
-#        Gene lengths in base pairs in the same order
-#        as the rows in counts.
-#
-#    Returns
-#    -------
-#    normed : array, shape (N_genes, N_samples)
-#        The RPKM normalized counts matrix.
-#    """
-#    C = counts.astype(float)  # use float to avoid overflow with `1e9 * C`
-#    N = np.sum(C, axis=0)  # sum each column to get total reads per sample
-#    L = lengths
-#
-#    normed = 1e9 * C / (N[np.newaxis, :] * L[:, np.newaxis])
-#
-#    return(normed)
-#```
-#
-#```{python}
-#counts_rpkm = rpkm(counts, gene_lengths)
-#```
-#
-##### RPKM between gene normalization
-#
-#Let's see the RPKM normalization's effect in action. First, as a reminder, here's
-#the distribution of mean log counts as a function of gene length:
-#
-#```{python}
-#log_counts = np.log(counts + 1)
-#mean_log_counts = np.mean(log_counts, axis=1)
-#log_gene_lengths = np.log(gene_lengths)
-#
-#with plt.style.context('style/thinner.mplstyle'):
-#    # Keep track of axis object so that the next plot can have the same scale
-#    unnormalized_ax = binned_boxplot(x=log_gene_lengths, y=mean_log_counts)
-#```
-#<!-- caption text="The relationship between gene length and average expression before RPKM normalization (log scale)" -->
-#
-#Now, the same plot with the RPKM-normalized values:
-#
-#```{python}
-#log_counts = np.log(counts_rpkm + 1)
-#mean_log_counts = np.mean(log_counts, axis=1)
-#log_gene_lengths = np.log(gene_lengths)
-#
-#with plt.style.context('style/thinner.mplstyle'):
-#    rpkm_ax = binned_boxplot(x=log_gene_lengths, y=mean_log_counts)
-#    # Set the axis limits to those of the previous plot for visual comparison
-#    rpkm_ax.set_ylim(unnormalized_ax.get_ylim())
-#```
-#
-#You can see that the mean expression counts have flattened quite a bit,
-#especially for genes larger than about 3,000 base pairs.
-#(Smaller genes still appear to have low expression — these may be too small for
-#the statistical power of the RPKM method.)
-#
-#RPKM normalization can be useful to compare the expression profile of different genes.
-#We've already seen that longer genes have higher counts, but this doesn't mean their expression level is actually higher.
-#Let's choose a short gene and a long gene and compare their counts before and after RPKM normalization to see what we mean.
-#
-#```{python}
-#gene_idxs = np.nonzero((gene_names == 'RPL24') |
-#                       (gene_names == 'TXNDC5'))
-#gene1, gene2 = gene_names[gene_idxs]
-#len1, len2 = gene_lengths[gene_idxs]
-#gene_labels = [f'{gene1}, {len1}bp', f'{gene2}, {len2}bp']
-#
-#log_counts = list(np.log(counts[gene_idxs] + 1))
-#log_ncounts = list(np.log(counts_rpkm[gene_idxs] + 1))
-#
-#ax = class_boxplot(log_counts,
-#                   ['raw counts'] * 3,
-#                   labels=gene_labels)
-#ax.set_xlabel('Genes')
-#ax.set_ylabel('log gene expression counts over all samples');
-#```
-#<!-- caption text="Comparing expression of two genes before RPKM normalization" -->
-#
-#If we look just at the raw counts, it looks like the longer gene, TXNDC5, is expressed
-#slightly more than the shorter one, RPL24.
-#But, after RPKM normalization, a different picture emerges:
-#
-#```{python}
-#ax = class_boxplot(log_ncounts,
-#                   ['RPKM normalized'] * 3,
-#                   labels=gene_labels)
-#ax.set_xlabel('Genes')
-#ax.set_ylabel('log RPKM gene expression counts over all samples');
-#```
-#<!-- caption text="Comparing expression of two genes after RPKM normalization" -->
-#
-#Now it looks like RPL24 is actually expressed at a much higher level than TXNDC5.
-#This is because RPKM includes normalization for gene length, so we can now directly compare between genes of different lengths.
-#
-### Taking Stock
-#
-#So far we have done the following:
-#- Imported data using pandas
-#- Become familiar with the key NumPy object class — the ndarray
-#- Used the power of broadcasting to make our calculations more elegant.
-#
-#In Chapter 2 we will continue working with the same dataset, implementing a
-#more sophisticated normalization technique, then use clustering to make some
-#predictions about mortality in skin cancer patients.
----
+
+> **Python 3 Tip: using `*` to create keyword-only arguments {.callout}**
+>
+> Since version 3.0 Python allows
+> ["keyword-only" arguments](https://www.python.org/dev/peps/pep-3102/).
+> These are arguments that you have to call using a keyword, rather than relying
+> on position alone.
+> For example, you can call the `binned_boxplot` we just wrote like so:
+>
+>     >>> binned_boxplot(x, y, xlabel='my x label', ylabel='my y label')
+>
+> but not this, which would have been valid Python 2, but raises an error in
+> Python 3:
+>
+>     >>> binned_boxplot(x, y, 'my x label', 'my y label')
+>
+>     ---------------------------------------------------------------------------
+>     TypeError                                 Traceback (most recent call last)
+>     <ipython-input-58-7a118d2d5750in <module>()
+>         1 x_vals = [1, 2, 3, 4, 5]
+>         2 y_vals = [1, 2, 3, 4, 5]
+>     ----3 binned_boxplot(x, y, 'my x label', 'my y label')
+>
+>     TypeError: binned_boxplot() takes 2 positional arguments but 4 were given
+>
+> The idea is to prevent you from accidentally doing something like this:
+>
+>     binned_boxplot(x, y, 'my y label')
+>
+> which would give you your y label on the x-axis, and is a common error for
+> signatures with many optional parameters that don't have an obvious ordering.
+
+We now compute the gene lengths and counts:
+
+```{python}
+log_counts = np.log(counts_lib_norm + 1)
+mean_log_counts = np.mean(log_counts, axis=1)  # across samples
+log_gene_lengths = np.log(gene_lengths)
+```
+
+And we plot the counts as a function of gene length:
+
+```{python}
+with plt.style.context('style/thinner.mplstyle'):
+    binned_boxplot(x=log_gene_lengths, y=mean_log_counts);
+```
+
+We can see in the previous image that the longer a gene is, the higher its measured counts! As
+previously explained, this is an artifact of the technique, not a biological signal!
+How do we account for this?
+
+### Normalizing Over Samples and Genes: RPKM
+
+One of the simplest normalization methods for RNAseq data is RPKM: reads per
+kilobase transcript per million reads.
+RPKM puts together the ideas of normalizing by sample and by gene.
+When we calculate RPKM, we are normalizing for both the library size (the sum of each column)
+and the gene length.
+
+To work through how RPKM is derived, let's define the following values:
+
+- $C$ = Number of reads mapped to a gene
+- $L$ = Exon length in base-pairs for a gene
+- $N$ = Total mapped reads in the experiment
+
+First, let's calculate reads per kilobase.
+
+Reads per base would be:
+$\frac{C}{L}$
+
+The formula asks for reads per kilobase instead of reads per base.
+One kilobase = 1,000 bases, so we'll need to divide length (L) by 1,000.
+
+Reads per kilobase would be:
+
+$\frac{C}{L/1000}  = \frac{10^3C}{L}$
+
+Next, we need to normalize by library size.
+If we just divide by the number of mapped reads we get:
+
+$\frac{10^3C}{LN}$
+
+But biologists like thinking in millions of reads so that the numbers don't get
+too small. Counting per million reads we get:
+
+$\frac{10^3C}{L(N/10^6)} = \frac{10^9C}{LN}$
+
+In summary, to calculate reads per kilobase transcript per million reads:
+$RPKM = \frac{10^9C}{LN}$
+
+Now let's implement RPKM over the entire counts array.
+
+```{python}
+# Make our variable names the same as the RPKM formula so we can compare easily
+C = counts
+N = np.sum(counts, axis=0)  # sum each column to get total reads per sample
+L = gene_lengths  # lengths for each gene, matching rows in `C`
+```
+
+> **Tip: Numbers and computers {.callout}**
+>
+> We can't cover everything you need to know about numeric representations
+> in computers in just a tip box, but you *should* know that numbers are
+> represented as "n-bit" "integer" or "floating point" numbers in
+> the computer. As an example, a 32-bit precision integer is an integer
+> number (no decimal point) represented as a string of 0s and 1s of width
+> 32. And, just like you can't represent a number larger than 9999 ($10^4-1$)
+> if you have a length-4 array of numbers, you can't represent a number
+> larger than $2^32 - 1 \approx 4 \times 10^9$ if you are using 32-bit
+> integers, or $2^31 - 1 \approx 2 \times 10^9$ if you want to have negative
+> numbers (because you need one of the 32 bits to indicate sign).
+>
+> So what happens when you go over that limit? You can try it with the
+> following code:
+>
+>     >>> 2**31 - 1
+>     2147483647
+>     >>> np.array([2147483647], dtype=np.int32) + 1
+>     array([-2147483648], dtype=int32)
+>
+> As you can see, it just ticks over, without warning!
+>
+> Floating point numbers can express much larger numbers, at the cost of some
+> precision:
+>
+>     >>> np.float32(2**96)
+>     7.9228163e+28
+>     >>> np.float32(2**96) == np.float32(2**96 + 1)
+>     True
+>
+> As mentioned, we can't go into all the subtleties of dealing with these
+> errors, but it's probably what we are avoiding if you see us converting an
+> array with `.astype(float)`!
+>
+> The paper "What Every Computer Scientist Should Know About Floating-Point
+> Arithmetic", by David Goldberg, contains a lot of detail about this, if you
+> are curious. A free version is available at
+> https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html
+> . Somewhat more amusingly, try:
+>
+>     >>> np.sum(np.array([0.1 + 0.2], dtype=np.float64))
+>     0.30000000000000004
+>
+> Then, copy that value to go to http://0.30000000000000004.com, which
+> contains a very concise explanation of the problem and links to further
+> resources, including the Goldberg paper.
+
+First, we multiply by $10^9$.
+Because counts (C) is an ndarray, we can use broadcasting.
+If we multiple an ndarray by a single value,
+that value is broadcast over the entire array.
+
+```{python}
+# Multiply all counts by $10^9$. Note that ^ in Python is bitwise-or.
+# Exponentiation is denoted by `**`
+# Avoid overflow by converting C to float, see tip "Numbers and computers"
+C_tmp = 10**9 * C.astype(float)
+```
+
+Next we need to divide by the gene length.
+Broadcasting a single value over a 2D array was pretty clear.
+We were just multiplying every element in the array by the value.
+But what happens when we need to divide a 2D array by a 1D array?
+
+#### Broadcasting rules
+
+Broadcasting allows calculations between ndarrays that have different shapes.
+Numpy uses broadcasting rules to make these manipulations a little easier.
+When two arrays have the same number of dimensions,
+broadcasting can occur if the sizes of each dimension match,
+or one of them is equal to 1.
+If arrays have different numbers of dimensions, then $(1,)$ is prepended to the
+shorter array until the numbers match, and then the standard broadcasting rules
+apply.
+
+For example, suppose we have two ndarrays, A and B, with shapes $(5, 2)$ and
+$(2,)$.
+We define the product `A * B` using broadcasting.
+B has fewer dimensions than A, so during the calculation,
+a new dimension is prepended to B with value 1, so B's new shape is $(1, 2)$.
+Finally, where B's shape doesn't match A's, it is *multiplied* by stacking enough
+versions of B, giving the shape $(5, 2)$. This is done "virtually", without using
+up any additional memory. At this point, the product is just an element-wise
+multiplication, giving an output array of the same shape as A.
+
+Now let's say we have another array, C, of shape $(2, 5)$. To multiply (or add) C 
+to B, we might try to prepend $(1,)$ to the shape of B, but in that case, we still
+end up with incompatible shapes: $(2, 5)$ and $(1, 2)$. If we want the arrays to
+broadcast, we have to *ap*pend a dimension to B, manually. Then, we end up with
+$(2, 5)$ and $(2, 1)$, and broadcasting can proceed.
+
+In NumPy, we can explicitly add a new dimension to B using `np.newaxis`.
+Let's see this in our normalization by RPKM.
+
+Let's look at the dimensions of our arrays.
+
+```{python}
+print('C_tmp.shape', C_tmp.shape)
+print('L.shape', L.shape)
+```
+
+We can see that `C_tmp` has two dimensions, while `L` has one.
+So during broadcasting, an additional dimension will be prepended to `L`.
+Then we will have:
+
+```
+C_tmp.shape (20500, 375)
+L.shape (1, 20500)
+```
+
+The dimensions won't match!
+We want to broadcast L over the first dimension of `C_tmp`,
+so we need to adjust the dimensions of L ourselves.
+
+```{python}
+L = L[:, np.newaxis] # append a dimension to L, with value 1
+print('C_tmp.shape', C_tmp.shape)
+print('L.shape', L.shape)
+```
+
+Now that our dimensions match or are equal to 1, we can broadcast.
+
+```{python}
+# Divide each row by the gene length for that gene (L)
+C_tmp = C_tmp / L
+```
+
+Finally we need to normalize by the library size,
+the total number of counts for that column.
+Remember that we have already calculated $N$ with:
+
+```{python}
+N = np.sum(counts, axis=0) # sum each column to get total reads per sample
+```
+
+```{python}
+# Check the shapes of C_tmp and N
+print('C_tmp.shape', C_tmp.shape)
+print('N.shape', N.shape)
+```
+
+Once we trigger broadcasting, an additional dimension will be
+prepended to N:
+
+`N.shape (1, 375)`
+
+The dimensions will match so we don't have to do anything.
+However, for readability, it can be useful to add the extra dimension to N anyway.
+
+```{python}
+# Divide each column by the total counts for that column (N)
+N = N[np.newaxis, :]
+print('C_tmp.shape', C_tmp.shape)
+print('N.shape', N.shape)
+```
+
+```{python}
+# Divide each column by the total counts for that column (N)
+rpkm_counts = C_tmp / N
+```
+
+Let's put this in a function so we can reuse it.
+
+```{python}
+def rpkm(counts, lengths):
+    """Calculate reads per kilobase transcript per million reads.
+
+    RPKM = (10^9 * C) / (N * L)
+
+    Where:
+    C = Number of reads mapped to a gene
+    N = Total mapped reads in the experiment
+    L = Exon length in base pairs for a gene
+
+    Parameters
+    ----------
+    counts: array, shape (N_genes, N_samples)
+        RNAseq (or similar) count data where columns are individual samples
+        and rows are genes.
+    lengths: array, shape (N_genes,)
+        Gene lengths in base pairs in the same order
+        as the rows in counts.
+
+    Returns
+    -------
+    normed : array, shape (N_genes, N_samples)
+        The RPKM normalized counts matrix.
+    """
+    C = counts.astype(float)  # use float to avoid overflow with `1e9 * C`
+    N = np.sum(C, axis=0)  # sum each column to get total reads per sample
+    L = lengths
+
+    normed = 1e9 * C / (N[np.newaxis, :] * L[:, np.newaxis])
+
+    return(normed)
+```
+
+```{python}
+counts_rpkm = rpkm(counts, gene_lengths)
+```
+
+#### RPKM between gene normalization
+
+Let's see the RPKM normalization's effect in action. First, as a reminder, here's
+the distribution of mean log counts as a function of gene length:
+
+```{python}
+log_counts = np.log(counts + 1)
+mean_log_counts = np.mean(log_counts, axis=1)
+log_gene_lengths = np.log(gene_lengths)
+
+with plt.style.context('style/thinner.mplstyle'):
+    # Keep track of axis object so that the next plot can have the same scale
+    unnormalized_ax = binned_boxplot(x=log_gene_lengths, y=mean_log_counts)
+```
+<!-- caption text="The relationship between gene length and average expression before RPKM normalization (log scale)" -->
+
+Now, the same plot with the RPKM-normalized values:
+
+```{python}
+log_counts = np.log(counts_rpkm + 1)
+mean_log_counts = np.mean(log_counts, axis=1)
+log_gene_lengths = np.log(gene_lengths)
+
+with plt.style.context('style/thinner.mplstyle'):
+    rpkm_ax = binned_boxplot(x=log_gene_lengths, y=mean_log_counts)
+    # Set the axis limits to those of the previous plot for visual comparison
+    rpkm_ax.set_ylim(unnormalized_ax.get_ylim())
+```
+
+You can see that the mean expression counts have flattened quite a bit,
+especially for genes larger than about 3,000 base pairs.
+(Smaller genes still appear to have low expression — these may be too small for
+the statistical power of the RPKM method.)
+
+RPKM normalization can be useful to compare the expression profile of different genes.
+We've already seen that longer genes have higher counts, but this doesn't mean their expression level is actually higher.
+Let's choose a short gene and a long gene and compare their counts before and after RPKM normalization to see what we mean.
+
+```{python}
+gene_idxs = np.nonzero((gene_names == 'RPL24') |
+                       (gene_names == 'TXNDC5'))
+gene1, gene2 = gene_names[gene_idxs]
+len1, len2 = gene_lengths[gene_idxs]
+gene_labels = [f'{gene1}, {len1}bp', f'{gene2}, {len2}bp']
+
+log_counts = list(np.log(counts[gene_idxs] + 1))
+log_ncounts = list(np.log(counts_rpkm[gene_idxs] + 1))
+
+ax = class_boxplot(log_counts,
+                   ['raw counts'] * 3,
+                   labels=gene_labels)
+ax.set_xlabel('Genes')
+ax.set_ylabel('log gene expression counts over all samples');
+```
+<!-- caption text="Comparing expression of two genes before RPKM normalization" -->
+
+If we look just at the raw counts, it looks like the longer gene, TXNDC5, is expressed
+slightly more than the shorter one, RPL24.
+But, after RPKM normalization, a different picture emerges:
+
+```{python}
+ax = class_boxplot(log_ncounts,
+                   ['RPKM normalized'] * 3,
+                   labels=gene_labels)
+ax.set_xlabel('Genes')
+ax.set_ylabel('log RPKM gene expression counts over all samples');
+```
+<!-- caption text="Comparing expression of two genes after RPKM normalization" -->
+
+Now it looks like RPL24 is actually expressed at a much higher level than TXNDC5.
+This is because RPKM includes normalization for gene length, so we can now directly compare between genes of different lengths.
+
+## Taking Stock
+
+So far we have done the following:
+- Imported data using pandas
+- Become familiar with the key NumPy object class — the ndarray
+- Used the power of broadcasting to make our calculations more elegant.
+
+In Chapter 2 we will continue working with the same dataset, implementing a
+more sophisticated normalization technique, then use clustering to make some
+predictions about mortality in skin cancer patients.
