@@ -764,6 +764,7 @@ If we want to compare the expression levels of different genes, we will have to 
 Let's see if the relationship between gene length and counts plays out in our dataset.
 First, we define a utility function for plotting:
 
+TODO: Reference from code comment below to callout in text
 ```{python}
 def binned_boxplot(x, y, *,  # check out this Python 3 exclusive! (*see tip box)
                    xlabel='gene length (log scale)',
