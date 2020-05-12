@@ -20,3 +20,5 @@ figures/generated/*
 .ipynb_checkpoints
 node_modules/
 venv/
+# Jupyterbook
+jupybook/_build/*
