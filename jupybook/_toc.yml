@@ -1,6 +1,11 @@
-- file: intro
-- file: content
-  sections:
-    - file: markdown
-    - file: notebooks
-- file: syntax
+- file: preface.md
+- file: acknowledgements.md
+- file: ch1.md
+- file: ch2.md
+- file: ch3.md
+- file: ch4.md
+- file: ch5.md
+- file: ch6.md
+- file: ch7.md
+- file: ch8.md
+- file: epilogue.md
