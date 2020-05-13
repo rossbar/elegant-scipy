@@ -40,3 +40,9 @@ notebooks into a text-based format with `jupytext`.
    TODO: Figure out how to automate this within jupyter-book
 
 [myst-nb]: https://myst-nb.readthedocs.io/en/latest/use/markdown.html
+
+# General notes and issues
+
+ - [ ] TOC doesn't yet seem to be figured out
+   - including a {toctree} directive in a file causes doubling of the toc in 
+     the nav bar
