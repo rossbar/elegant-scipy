@@ -1,6 +1,6 @@
 # Book settings
-title: My sample book
-author: The Jupyter Book Community
+title: Elegant Scipy
+author: Juan Nunez-Iglesias (@jmi), Harriet Dashnow (@hdashnow), and Stéfan van der Walt (@stefanv)
 logo: logo.png
 
 latex:

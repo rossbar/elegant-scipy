@@ -1,16 +1,3 @@
----
-jupytext:
-  text_representation:
-    extension: .md
-    format_name: myst
-    format_version: '0.8'
-    jupytext_version: 1.4.2
-kernelspec:
-  display_name: Python 3
-  language: python
-  name: python3
----
-
 # Preface
 
 > Unlike the stereotypical wedding dress, it was—to use a technical term—elegant, like a computer algorithm that achieves an impressive outcome with just a few lines of code.
@@ -201,34 +188,24 @@ ago; a lifetime in the tech world).
 
 Here's one way in which Python has improved in turning 3:
 
-+++
-
 ```
 print "Hello World!"   # Python 2 print statement
 print("Hello World!")  # Python 3 print function
 ```
 
-+++
-
 Why cause such a fuss just to add some parentheses!
 Well, true, but what if you want to instead print to a different *stream*, such as *standard error*, the usual place for debugging information?
-
-+++
 
 ```
 print >>sys.stderr, "fatal error"  # Python 2
 print("fatal error", file=sys.stderr)  # Python 3
 ```
 
-+++
-
 That change certainly seems more worthwhile; what is going on in the
 Python 2 version anyway? The authors don't rightly know.
 
 Another change is the way Python 3 treats integer division, which is the way most humans treat division.
 (Note `>>>` indicates we are typing at the Python interactive shell.)
-
-+++
 
 ```
 # Python 2
@@ -239,21 +216,19 @@ Another change is the way Python 3 treats integer division, which is the way mos
 2.5
 ```
 
-+++
-
 We were also pretty excited about the new `@` *matrix multiplication* operator introduced in Python 3.5 in 2015.
 Check out chapters 5 and 6 for some examples of this operator in use!
 
 Possibly the biggest improvement in Python 3 is its support for Unicode, a way of encoding text that allows one to use not just the English alphabet, but any alphabet in the world.
 Python 2 allowed you to define a Unicode string, like so:
 
-```{code-cell}
+```python
 beta = u"β"
 ```
 
 But in Python 3, *everything* is Unicode:
 
-```{code-cell}
+```python
 β = 0.5
 print(2 * β)
 ```
@@ -429,14 +404,10 @@ Another amusingly titled package is "Sux", which allows you to use Python 2 pack
 This is a play on "six", which lets you use Python 3 syntax in Python 2, with a New Zealand accent.
 Sux syntax makes it less frustrating to use Python 2-only packages after you've moved to Python 3:
 
-+++
-
 ```
 import sux
 p = sux.to_use('my_py2_package')
 ```
-
-+++
 
 In general, Python library names can be a riot, and we hope you'll enjoy your time coming up with some!
 
@@ -464,14 +435,10 @@ We list all of the requirements and the versions we used in the **environment.ym
 The easiest way to get all of these components is to install conda, a tool for managing python environments (http://conda.pydata.org/miniconda.html).
 You can then pass that environment.yml to conda to install the right versions of everything in one go.
 
-+++
-
 ```
 conda env create --name elegant-scipy -f path/to/environment.yml
 source activate elegant-scipy
 ```
-
-+++
 
 See the the book [GitHub repository](https://github.com/elegant-scipy/elegant-scipy) for more details.
 
