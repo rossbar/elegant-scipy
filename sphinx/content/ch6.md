@@ -1,10 +1,23 @@
+---
+jupytext:
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: '0.8'
+    jupytext_version: 1.4.2
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
 # Linear algebra in SciPy
 
 > No one can be told what the matrix is. You have to see it for yourself.
 >
 > — Morpheus, *The Matrix*
 
-Just like {doc}`Chapter 4 <ch4>`, which dealt with the {abbr}`FFT`, this chapter
+Just like Chapter 4, which dealt with the Fast Fourier Transform, this chapter
 will feature an elegant *method*. We
 want to highlight the packages available in SciPy to do linear algebra, which forms
 the basis of much scientific computing.
@@ -30,7 +43,7 @@ linear algebra convention helps to keep them straight. Therefore, variables
 that represent matrices will start with a capital letter, while vectors and
 numbers will start with lowercase:
 
-```python
+```{code-cell}
 import numpy as np
 
 m, n = (5, 6)  # scalars
@@ -46,7 +59,7 @@ on context to keep scalars and vectors straight.
 
 ## Laplacian matrix of a graph
 
-We discussed graphs in {ref}`Chapter 3 <sec:nxgraphs>`, where we represented image regions as
+We discussed graphs in chapter 3, where we represented image regions as
 nodes, connected by edges between them. But we used a rather simple method of
 analysis: we *thresholded* the graph, removing all edges above some value.
 Thresholding works in simple cases, but all you need
@@ -83,9 +96,9 @@ as the *degree matrix*, $D$, which
 contains the degree of each node along the diagonal and zero everywhere else,
 minus the adjacency matrix $A$:
 
-$$
+$
 L = D - A
-$$
+$
 
 We definitely can't fit all of the linear algebra theory needed to understand
 the properties of this matrix, but suffice it to say: it has some *great*
@@ -99,24 +112,23 @@ relation to $M$ because $Mv$ simply changes the size of the vector, without
 changing its direction. As we will soon see, eigenvectors have many useful
 properties — sometimes seeming even magical!
 
-As an example, a $3\times3$ rotation matrix $R$, when multiplied by any
+As an example, a 3x3 rotation matrix $R$, when multiplied by any
 3-dimensional vector $p$, rotates it $30^\circ$ degrees around the z-axis.  $R$
 will rotate all vectors except for those that lie *on* the z-axis.  For those,
 we'll see no effect, or $Rp = p$, i.e. $Rp = \lambda p$ with
 eigenvalue $\lambda = 1$.
 
-% TODO: Exercises
 <!-- exercise begin -->
 
 **Exercise:** Consider the rotation matrix
 
-$$
+$
 R = \begin{bmatrix}
   \cos \theta &  -\sin \theta & 0 \\
   \sin \theta & \cos \theta & 0\\
   0 & 0 & 1\\
 \end{bmatrix}
-$$
+$
 
 When $R$ is multiplied with a 3-dimensional column-vector $p =
 \left[ x\, y\, z \right]^T$, the resulting vector $R p$ is rotated
@@ -142,7 +154,7 @@ by $\theta$ degrees around the z-axis.
 
 Part 1:
 
-```python
+```{code-cell}
 import numpy as np
 
 theta = np.deg2rad(45)
@@ -162,14 +174,14 @@ by $R$ again should result in the original vector being rotated 90 degrees.
 Matrix multiplication is associative, which means that $R(Rv) = (RR)v$, so
 $S = RR$ should rotate vectors by 90 degrees around the z-axis.
 
-```python
+```{code-cell}
 S = R @ R
 S @ [1, 0, 0]
 ```
 
 Part 3:
 
-```python
+```{code-cell}
 print("R @ z-axis:", R @ [0, 0, 1])
 ```
 
@@ -181,7 +193,7 @@ Looking at the documentation of `eig`, we see that it returns two values:
 a 1D array of eigenvalues, and a 2D array where each column contains the
 eigenvector corresponding to each eigenvalue.
 
-```python
+```{code-cell}
 np.linalg.eig(R)
 ```
 
@@ -194,17 +206,11 @@ associated with the vector $\left[0, 0, 1\right]^T$.
 
 Back to the Laplacian. A common problem in network analysis is visualization.
 How do you draw nodes and edges in such a way that you don't get a complete
-mess like {numref}`fig:busy_graph`
+mess such as this one?
 
-```{figure} https://upload.wikimedia.org/wikipedia/commons/9/90/Visualization_of_wiki_structure_using_prefuse_visualization_package.png
----
-name: fig:busy_graph
----
-Visualization of wikipedia structure. Created by Chris Davis and released under
-[CC-BY-SA-3.0][cc3].
-```
+<img src="https://upload.wikimedia.org/wikipedia/commons/9/90/Visualization_of_wiki_structure_using_prefuse_visualization_package.png"/>
+<!-- caption text="Visualization of wikipedia structure. Created by Chris Davis and released under CC-BY-SA-3.0 (https://commons.wikimedia.org/wiki/GNU_Free_Documentation_License)." -->
 
-[cc3]: https://commons.wikimedia.org/wiki/GNU_Free_Documentation_License
 
 One way is to put nodes that share many edges close together. It turns out
 that this can be done by using the second-smallest eigenvalue of the Laplacian
@@ -215,7 +221,7 @@ own name: the
 Let's use a minimal network to illustrate this. We start by creating the
 adjacency matrix:
 
-```python
+```{code-cell}
 import numpy as np
 A = np.array([[0, 1, 1, 0, 0, 0],
               [1, 0, 1, 0, 0, 0],
@@ -228,7 +234,7 @@ A = np.array([[0, 1, 1, 0, 0, 0],
 We can use NetworkX to draw this network. First, we initialize matplotlib as
 usual:
 
-```python
+```{code-cell}
 # Make plots appear inline, set custom plotting style
 %matplotlib inline
 import matplotlib.pyplot as plt
@@ -237,24 +243,23 @@ plt.style.use('style/elegant.mplstyle')
 
 Now, we can plot it:
 
-```python
+```{code-cell}
 import networkx as nx
 g = nx.from_numpy_matrix(A)
 layout = nx.spring_layout(g, pos=nx.circular_layout(g))
 nx.draw(g, pos=layout,
         with_labels=True, node_color='white')
 ```
+
 <!-- caption text="A simple network plotted with NetworkX" -->
 
 
 You can see that the nodes fall naturally into two groups, 0, 1, 2 and 3, 4, 5.
 Can the Fiedler vector tell us this? First, we must compute the degree matrix
-and the Laplacian. We first get the degrees by summing along either axis[^axis]
-of $A$.
+and the Laplacian. We first get the degrees by summing along either axis of $A$.
+(Either axis works because $A$ is symmetric.)
 
-[^axis]: Either axis works because $A$ is symmetric.
-
-```python
+```{code-cell}
 d = np.sum(A, axis=0)
 print(d)
 ```
@@ -262,14 +267,14 @@ print(d)
 We then put those degrees into a diagonal matrix of the same shape
 as A, the *degree matrix*. We can use the `np.diag` function to do this:
 
-```python
+```{code-cell}
 D = np.diag(d)
 print(D)
 ```
 
 Finally, we get the Laplacian from the definition:
 
-```python
+```{code-cell}
 L = D - A
 print(L)
 ```
@@ -277,32 +282,21 @@ print(L)
 Because $L$ is symmetric, we can use the `np.linalg.eigh` function to compute
 the eigenvalues and eigenvectors:
 
-```python
+```{code-cell}
 val, Vec = np.linalg.eigh(L)
 ```
-
-````{tip}
-When dealing with *real symmetric* or *conjugate symmetric* matrix, 
-`np.linalg.eigh` is generally preferred over `np.linalg.eig` as it uses a
-faster algorithm under-the-hood that exploits the symmetry of the matrix.
-```{warning}
-`np.linalg.eigh` **does not** check that the matrix you give it is indeed
-symmetric. If you are not sure that the matrix is symmetric, it's safer to
-use the more general `np.linalg.eig`.
-```
-````
 
 You can verify that the values returned satisfy the definition of eigenvalues
 and eigenvectors. For example, one of the eigenvalues is 3:
 
-```python
+```{code-cell}
 np.any(np.isclose(val, 3))
 ```
 
 And we can check that multiplying the matrix $L$ by the corresponding eigenvector
 does indeed multiply the vector by 3:
 
-```python
+```{code-cell}
 idx_lambda3 = np.argmin(np.abs(val - 3))
 v3 = Vec[:, idx_lambda3]
 
@@ -314,49 +308,49 @@ As mentioned above, the Fiedler vector is the vector corresponding to the
 second-smallest eigenvalue of $L$. Sorting the eigenvalues tells us which one
 is the second-smallest:
 
-```python
+```{code-cell}
 plt.plot(np.sort(val), linestyle='-', marker='o');
 ```
+
 <!-- caption text="Eigenvalues of $L$" -->
 
 It's the first non-zero eigenvalue, close to 0.4. The Fiedler vector is the
 corresponding eigenvector:
 
-```python
+```{code-cell}
 f = Vec[:, np.argsort(val)[1]]
 plt.plot(f, linestyle='-', marker='o');
 ```
+
 <!-- caption text="Fiedler vector of $L$" -->
 
 It's pretty remarkable: by looking at the *sign* of the elements of the Fiedler
 vector, we can separate the nodes into the two groups we identified in the
 drawing!
 
-```python
+```{code-cell}
 colors = ['orange' if eigv > 0 else 'gray' for eigv in f]
 nx.draw(g, pos=layout, with_labels=True, node_color=colors)
 ```
+
 <!-- caption text="Nodes colored by their sign in the Fiedler vector of $L$" -->
 
 ## Laplacians with brain data
 
 Let's demonstrate this process in a real-world example by laying out the brain cells in a worm, as shown in
-[Figure 2][worm_fig2]
+[Figure 2](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1001066)
 from the
 [Varshney *et al* paper](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1001066)
-that we introduced in Chapter 3[^wormrepro]. 
-To obtain their layout of the worm brain neurons, they used a related matrix, the
+that we introduced in Chapter 3. (Information on
+how to do this is in the
+[supplementary material](http://journals.plos.org/ploscompbiol/article/asset?unique&id=info:doi/10.1371/journal.pcbi.1001066.s001)
+for the paper.) To obtain their
+layout of the worm brain neurons, they used a related matrix, the
 *degree-normalized Laplacian*.
-
-[worm_fig2]: http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1001066
-
-[^wormrepro]: Information on how to do this is in the [supplementary material][worm-sup] for the paper.
-
-[worm-sup]: http://journals.plos.org/ploscompbiol/article/asset?unique&id=info:doi/10.1371/journal.pcbi.1001066.s001
 
 Because the order of the neurons is important in this analysis, we will use a
 preprocessed dataset, rather than clutter this chapter with data cleaning. We
-got the original data from Lav Varshney's website,
+got the original data from [Lav Varshney's GitHub](https://github.com/lrvarshney/elegans),
 and the processed data is in our `data/` directory.
 
 First, let's load the data. There are four components:
@@ -373,7 +367,7 @@ First, let's load the data. There are four components:
   - *interneurons*, the neurons in between, which enable complex signal processing
     to occur between sensory neurons and motor neurons, encoded as 1.
 
-```python
+```{code-cell}
 import numpy as np
 Chem = np.load('data/chem-network.npy')
 Gap = np.load('data/gap-network.npy')
@@ -389,7 +383,7 @@ only care about *whether* neurons are connected, not in which direction.
 We are going to call the resulting matrix the *connectivity* matrix, $C$, which
 is just a different kind of adjacency matrix.
 
-```python
+```{code-cell}
 A = Chem + Gap
 C = (A + A.T) / 2
 ```
@@ -397,18 +391,18 @@ C = (A + A.T) / 2
 To get the Laplacian matrix $L$, we need the degree matrix $D$, which contains
 the degree of node i at position [i, i], and zeros everywhere else.
 
-```python
+```{code-cell}
 degrees = np.sum(C, axis=0)
 D = np.diag(degrees)
 ```
 
 Now, we can get the Laplacian just like before:
 
-```python
+```{code-cell}
 L = D - C
 ```
 
-The vertical coordinates in [Fig 2][worm_fig2] are given by arranging nodes such that, on
+The vertical coordinates in Fig 2 are given by arranging nodes such that, on
 average, neurons are as close as possible to "just above" their downstream
 neighbors. Varshney _et al_ call this measure "processing depth," and it's
 obtained by solving a linear equation involving the Laplacian. We use
@@ -416,23 +410,20 @@ obtained by solving a linear equation involving the Laplacian. We use
 [pseudoinverse](https://en.wikipedia.org/wiki/Moore%E2%80%93Penrose_pseudoinverse),
 to solve it:
 
-```python
+```{code-cell}
 from scipy import linalg
 b = np.sum(C * np.sign(A - A.T), axis=1)
 z = linalg.pinv(L) @ b
 ```
 
-%TODO: Add xref to previous callout on '@' operator
-```{attention}
-Note the use of the `@` symbol, which was introduced in Python 3.5 to denote
+(Note the use of the `@` symbol, which was introduced in Python 3.5 to denote
 matrix multiplication. As we noted in the preface and in Chapter 5, in previous
-versions of Python, you would need to use the function `np.dot`.
-```
+versions of Python, you would need to use the function `np.dot`.)
 
 In order to obtain the degree-normalized Laplacian, $Q$, we need the inverse
 square root of the $D$ matrix:
 
-```python
+```{code-cell}
 Dinv2 = np.diag(1 / np.sqrt(degrees))
 Q = Dinv2 @ L @ Dinv2
 ```
@@ -441,11 +432,10 @@ Finally, we are able to extract the $x$ coordinates of the neurons to ensure tha
 highly-connected neurons remain close: the eigenvector of $Q$ corresponding to
 its second-smallest eigenvalue, normalized by the degrees:
 
-```python
+```{code-cell}
 val, Vec = linalg.eig(Q)
 ```
 
-% TODO: Use intersphinx for a ref somehow?
 Note from the documentation of `numpy.linalg.eig`:
 
 > "The eigenvalues are not necessarily ordered."
@@ -454,7 +444,7 @@ Although the documentation in SciPy's `eig` lacks this warning, it remains true
 in this case. We must therefore sort the eigenvalues and the corresponding
 eigenvector columns ourselves:
 
-```python
+```{code-cell}
 smallest_first = np.argsort(val)
 val = val[smallest_first]
 Vec = Vec[:, smallest_first]
@@ -462,15 +452,13 @@ Vec = Vec[:, smallest_first]
 
 Now we can find the eigenvector we need to compute the affinity coordinates:
 
-```python
+```{code-cell}
 x = Dinv2 @ Vec[:, 1]
 ```
 
-```{admonition} Aside
-The reasons for using this vector are too long to explain here, but appear in
-the paper's [supplementary material][worm-sup]. The short version is that
-choosing this vector minimizes the total length of the links between neurons.
-```
+(The reasons for using this vector are too long to explain here, but appear in
+the paper's supplementary material, linked above. The short version is that
+choosing this vector minimizes the total length of the links between neurons.)
 
 There is one small kink that we must address before proceeding: eigenvectors
 are only defined up to a multiplicative constant. This follows simply from the
@@ -483,11 +471,11 @@ arbitrary whether a software package returns $v$ or $-v$ when asked for the
 eigenvectors of $M$. In order to make sure we reproduce the layout from the
 Varshney *et al.* paper, we must make sure that the vector is pointing in the
 same direction as theirs, rather than the opposite direction. We do this by
-choosing an arbitrary neuron from their [Figure 2][worm_fig2], and checking the sign of `x`
-at that position. We then reverse it if it doesn't match its sign in [Figure 2][worm_fig2]
+choosing an arbitrary neuron from their Figure 2, and checking the sign of `x`
+at that position. We then reverse it if it doesn't match its sign in Figure 2
 of the paper.
 
-```python
+```{code-cell}
 vc2_index = np.argwhere(neuron_ids == 'VC02')
 if x[vc2_index] < 0:
     x = -x
@@ -498,13 +486,7 @@ according to the type stored in `neuron_types`, using the appealing and
 functional "colorblind"
 [colorbrewer palette](https://chrisalbon.com/python/data_visualization/seaborn_color_palettes/):
 
-```{code-block} python
----
-name: code:wormbrain_viz
-caption: |
-    A function for visualizing the connectome given info about the neurons
-    and their connectivity matrix.
----
+```{code-cell}
 from matplotlib.colors import ListedColormap
 from matplotlib.collections import LineCollection
 
@@ -569,14 +551,15 @@ def plot_connectome(x_coords, y_coords, conn_matrix, *,
     plt.show()
 ```
 
-Now, let's use the function from {numref}`code:wormbrain_viz` to plot the neurons:
+Now, let's use that function to plot the neurons:
 
-```python
+```{code-cell}
 plot_connectome(x, z, C, labels=neuron_ids, types=neuron_types,
                 type_names=['sensory neurons', 'interneurons',
                             'motor neurons'],
                 xlabel='Affinity eigenvector 1', ylabel='Processing depth')
 ```
+
 <!-- caption text="Spectral layout of the neurons of a nematode worm" -->
 
 There you are: a worm brain!
@@ -595,7 +578,7 @@ Figure 2B from the paper?
 we use the normalized third eigenvector of Q, just like we did with x. (And we
 invert it if necessary, just like we did with x!)
 
-```python
+```{code-cell}
 y = Dinv2 @ Vec[:, 2]
 asjl_index = np.argwhere(neuron_ids == 'ASJL')
 if y[asjl_index] < 0:
@@ -607,6 +590,7 @@ plot_connectome(x, y, C, labels=neuron_ids, types=neuron_types,
                 xlabel='Affinity eigenvector 1',
                 ylabel='Affinity eigenvector 2')
 ```
+
 <!-- caption text="Spectral layout of the neurons of a nematode worm, using two
 spectral dimensions" -->
 
@@ -623,8 +607,7 @@ the necessary computations. Because we are using a small graph of fewer than 300
 nodes, this is feasible. However, for larger graphs, it would fail.
 
 For example, one might want to analyse the relationships between libraries
-listed on the Python Package Index, or [PyPI](https://pypi.org/),
-which contains over one hundred thousand packages.
+listed on the Python Package Index, or PyPI, which contains over one hundred thousand packages.
 Holding the Laplacian matrix for this graph would take 
 up $8 \left(100 \times 10^3\right)^2 = 8 \times 10^{10}$ bytes, or 80GB,
 of RAM. If you add to that the adjacency, symmetric adjacency, pseudoinverse,
@@ -642,19 +625,16 @@ However, we know that the dependency and reference graphs are *sparse*:
 packages usually depend on just a few other packages, not on the whole of PyPI.
 And papers and books usually only reference a few others, too. So we can hold
 the above matrices using the sparse data structures from `scipy.sparse` (see
-{doc}`Chapter 5 <ch5>`), and use the linear algebra functions in `scipy.sparse.linalg` to
+Chapter 5), and use the linear algebra functions in `scipy.sparse.linalg` to
 compute the values we need.
 
 Try to explore the documentation in `scipy.sparse.linalg` to come up with a
 sparse version of the above computation.
 
-```{hint}
-The pseudoinverse of a sparse matrix is, in general, not sparse, so you
+Hint: the pseudoinverse of a sparse matrix is, in general, not sparse, so you
 can't use it here. Similarly, you can't get all the eigenvectors of a sparse
 matrix, because they would together make up a dense matrix.
-```
 
-% TODO: What's the solutions chapter and how to link to it
 You'll find parts of the solution below (and of course in the solutions
 chapter), but we highly recommend that you try it out on your own.
 
@@ -670,7 +650,7 @@ First, we start with the adjacency matrix, A, in a sparse matrix format, in
 this case, CSR, which is the most common format for linear algebra. We'll
 append `s` to the names of all the matrices to indicate that they are sparse.
 
-```python
+```{code-cell}
 from scipy import sparse
 import scipy.sparse.linalg
 
@@ -679,37 +659,36 @@ As = sparse.csr_matrix(A)
 
 We can create our connectivity matrix in the same way:
 
-```python
+```{code-cell}
 Cs = (As + As.T) / 2
 ```
 
 In order to get the degrees matrix, we can use the "diags" sparse format, which
 stores diagonal and off-diagonal matrices.
 
-```python
+```{code-cell}
 degrees = np.ravel(Cs.sum(axis=0))
 Ds = sparse.diags(degrees)
 ```
 
 Getting the Laplacian is straightforward:
 
-```python
+```{code-cell}
 Ls = Ds - Cs
 ```
 
-Now we want to get the *processing depth*. Remember that getting the
+Now we want to get the processing depth. Remember that getting the
 pseudoinverse of the Laplacian matrix is out of the question, because it will
 be a dense matrix (the inverse of a sparse matrix is not generally sparse
 itself). However, we were actually using the pseudoinverse to compute a
 vector $z$ that would satisfy $L z = b$,
 where $b = C \odot \textrm{sign}\left(A - A^T\right) \mathbf{1}$.
-(You can see this in the [supplementary material][worm-sup] for Varshney *et al*.) With
+(You can see this in the supplementary material for Varshney *et al*.) With
 dense matrices, we can simply use $z = L^+b$. With sparse ones, though, we can
-% TODO - add link to callout
-use one of the *solvers* (see sidebox, "Solvers") in `sparse.linalg.isolve`
-to get the `z` vector after providing `L` and `b`, no inversion required!
+use one of the *solvers* (see sidebox, "Solvers") in `sparse.linalg.isolve` to get the `z` vector after
+providing `L` and `b`, no inversion required!
 
-```python
+```{code-cell}
 b = Cs.multiply((As - As.T).sign()).sum(axis=1)
 z, error = sparse.linalg.isolve.cg(Ls, b, maxiter=10000)
 ```
@@ -717,10 +696,10 @@ z, error = sparse.linalg.isolve.cg(Ls, b, maxiter=10000)
 Finally, we must find the eigenvectors of $Q$, the degree-normalized Laplacian,
 corresponding to its second and third smallest eigenvalues.
 
-You might recall from {doc}`Chapter 5 <ch5>` that the numerical data in sparse matrices is
+You might recall from Chapter 5 that the numerical data in sparse matrices is
 in the `.data` attribute. We use that to invert the degrees matrix:
 
-```python
+```{code-cell}
 Dsinv2 = Ds.copy()
 Dsinv2.data = 1 / np.sqrt(Ds.data)
 ```
@@ -731,7 +710,7 @@ specialized for symmetric matrices, to compute them. We use the `which` keyword
 argument to specify that we want the eigenvectors corresponding to the smallest
 eigenvalues, and `k` to specify that we need the 3 smallest:
 
-```python
+```{code-cell}
 
 Qs = Dsinv2 @ Ls @ Dsinv2
 vals, Vecs = sparse.linalg.eigsh(Qs, k=3, which='SM')
@@ -742,7 +721,7 @@ Vecs = Vecs[:, sorted_indices]
 Finally, we normalize the eigenvectors to get the x and y coordinates
 (and flip these if necessary):
 
-```python
+```{code-cell}
 _dsinv, x, y = (Dsinv2 @ Vecs).T
 if x[vc2_index] < 0:
     x = -x
@@ -750,15 +729,11 @@ if y[asjl_index] < 0:
     y = -y
 ```
 
-```{note}
-The eigenvector corresponding to the smallest eigenvalue is always a
-vector of all ones, which we're not interested in.
-```
+(Note that the eigenvector corresponding to the smallest eigenvalue is always a
+vector of all ones, which we're not interested in.)
+We can now reproduce the above plots!
 
-%TODO: xref to generated figures
-We can now use {numref}`code:wormbrain_viz` to reproduce the above plots!
-
-```python
+```{code-cell}
 plot_connectome(x, z, C, labels=neuron_ids, types=neuron_types,
                 type_names=['sensory neurons', 'interneurons',
                             'motor neurons'],
@@ -770,6 +745,7 @@ plot_connectome(x, y, C, labels=neuron_ids, types=neuron_types,
                 xlabel='Affinity eigenvector 1',
                 ylabel='Affinity eigenvector 2')
 ```
+
 <!-- caption text="Spectral layout of a nematode brain, computed using sparse
 matrices" -->
 
@@ -777,41 +753,39 @@ matrices" -->
 
 <!-- exercise end -->
 
-```{admonition} **Solvers**
+> **Solvers {.callout}**
+>
+> SciPy has several sparse iterative solvers available, and it is not always
+> obvious which to use.  Unfortunately, that question also has no easy answer:
+> different algorithms have different strengths in terms of speed of
+> convergence, stability, accuracy, and memory use (amongst others).  It is also
+> not possible to predict, by looking at the input data, which algorithm will
+> perform best.
+> 
+> Here is a rough guideline for choosing an iterative solver:
+> 
+> - If A, the input matrix, is symmetric and positive definite, use the
+>   Conjugate Gradient solver `cg`.  If A is symmetric, but
+>   near-singular or indefinite, try the Minimum Residual iteration
+>   method `minres`.
+> 
+> - For non-symmetric systems, try the Biconjugate Gradient Stabilized
+>   method, `bicgstab`.  The Conjugate Gradient Squared method, `cgs`,
+>   is a bit faster, but has more erratic convergence.
+> 
+> - If you need to solve many similar systems, use the LGMRES algorithm `lgmres`.
+> 
+> - If A is not square, use the least squares algorithm `lsmr`.
+> 
+> For further reading, see
+> 
+> - **How Fast are Nonsymmetric Matrix Iterations?**,
+>   Noël M. Nachtigal, Satish C. Reddy, and Lloyd N. Trefethen
+>   SIAM Journal on Matrix Analysis and Applications 1992 13:3, 778-795.
+> 
+> - **Survey of recent Krylov methods**, Jack Dongarra,
+>   http://www.netlib.org/linalg/html_templates/node50.html
 
-SciPy has several sparse iterative solvers available, and it is not always
-obvious which to use.  Unfortunately, that question also has no easy answer:
-different algorithms have different strengths in terms of speed of
-convergence, stability, accuracy, and memory use (amongst others).  It is also
-not possible to predict, by looking at the input data, which algorithm will
-perform best.
-
-Here is a rough guideline for choosing an iterative solver:
-
-- If A, the input matrix, is symmetric and positive definite, use the
-  Conjugate Gradient solver `cg`.  If A is symmetric, but
-  near-singular or indefinite, try the Minimum Residual iteration
-  method `minres`.
-
-- For non-symmetric systems, try the Biconjugate Gradient Stabilized
-  method, `bicgstab`.  The Conjugate Gradient Squared method, `cgs`,
-  is a bit faster, but has more erratic convergence.
-
-- If you need to solve many similar systems, use the LGMRES algorithm `lgmres`.
-
-- If A is not square, use the least squares algorithm `lsmr`.
-
-For further reading, see
-
-- [**How Fast are Nonsymmetric Matrix Iterations?**][solverref],
-  Noël M. Nachtigal, Satish C. Reddy, and Lloyd N. Trefethen
-  SIAM Journal on Matrix Analysis and Applications 1992 13:3, 778-795.
-
-- **Survey of recent Krylov methods**, Jack Dongarra,
-  <http://www.netlib.org/linalg/html_templates/node50.html>
-```
-
-[solverref]: https://epubs.siam.org/doi/abs/10.1137/0613049
 
 ## PageRank: linear algebra for reputation and importance
 
@@ -874,7 +848,7 @@ node $i$ has an edge to node $j$ if species $i$ eats species $j$.
 
 We'll start by loading in the data, which NetworkX knows how to read trivially:
 
-```python
+```{code-cell}
 import networkx as nx
 
 stmarks = nx.read_gml('data/stmarks.gml')
@@ -884,7 +858,7 @@ Next, we get the sparse matrix corresponding to the graph. Because a matrix
 only holds numerical information, we need to maintain a separate list of
 package names corresponding to the matrix rows/columns:
 
-```python
+```{code-cell}
 species = np.array(list(stmarks.nodes()))  # array for multi-indexing
 Adj = nx.to_scipy_sparse_matrix(stmarks, dtype=np.float64)
 ```
@@ -897,14 +871,14 @@ to call this a lunch probability matrix.
 The total number of species in our matrix is going to be used a lot, so let's
 call it $n$:
 
-```python
+```{code-cell}
 n = len(species)
 ```
 
 Next, we need the degrees, and, in particular, the *diagonal matrix* containing
 the inverse of the out-degrees of each node on the diagonal:
 
-```python
+```{code-cell}
 np.seterr(divide='ignore')  # ignore division-by-zero errors
 from scipy import sparse
 
@@ -912,7 +886,7 @@ degrees = np.ravel(Adj.sum(axis=1))
 Deginv = sparse.diags(1 / degrees).tocsr()
 ```
 
-```python
+```{code-cell}
 Trans = (Deginv @ Adj).T
 ```
 
@@ -961,21 +935,17 @@ $$
 
 and
 
-```{math}
----
-label: damped_pr
----
+$$
 (\boldsymbol{I} - dM)\boldsymbol{r} = \frac{1-d}{n} \boldsymbol{1}
-```
+$$
 
-We can solve equation {eq}`damped_pr` using `scipy.sparse.linalg`'s direct
+We can solve this equation using `scipy.sparse.linalg`'s direct
 solver, `spsolve`. Depending on the structure and size of a linear algebra
 problem, though, it might be more efficient to use an iterative solver. See
-% TODO: Replace with intersphinx
 the [`scipy.sparse.linalg` documentation](http://docs.scipy.org/doc/scipy/reference/sparse.linalg.html#solving-linear-problems)
 for more information on this.
 
-```python
+```{code-cell}
 from scipy.sparse.linalg import spsolve
 
 damping = 0.85
@@ -992,7 +962,7 @@ We now have the "foodrank" of the St. Marks food web!
 So how does a species' foodrank compare to the number of other species eating
 it?
 
-```python
+```{code-cell}
 def pagerank_plot(in_degrees, pageranks, names, *,
                   annotations=[], **figkwargs):
     """Plot node pagerank against in-degree, with hand-picked node names."""
@@ -1012,7 +982,7 @@ def pagerank_plot(in_degrees, pageranks, names, *,
 We now draw the plot. Having explored the dataset before writing this, we have
 pre-labeled some interesting nodes in the plot:
 
-```python
+```{code-cell}
 interesting = ['detritus', 'phytoplankton', 'benthic algae', 'micro-epiphytes',
                'microfauna', 'zooplankton', 'predatory shrimps', 'meiofauna',
                'gulls']
@@ -1048,12 +1018,7 @@ vector!
 
 SciPy makes this very efficient with its sparse matrix module:
 
-```{code-block} python
----
-name: code:power_method
-caption: |
-    Simple implementation of the *power method* for determining PageRank
----
+```{code-cell}
 def power(Trans, damping=0.85, max_iter=10**5):
     n = Trans.shape[0]
     r0 = np.full(n, 1/n)
@@ -1068,7 +1033,7 @@ def power(Trans, damping=0.85, max_iter=10**5):
 
 <!-- exercise begin -->
 
-**Exercise:** In {numref}`code:power_method`, note that `Trans` is *not*
+**Exercise:** In the above iteration, note that `Trans` is *not*
 column-stochastic, so the $r$ vector gets shrunk at each iteration. In order to
 make the matrix stochastic, we have to replace every zero-column by a column of
 all $1/n$. This is too expensive, but computing the iteration is cheaper. How
@@ -1090,7 +1055,7 @@ correspond to a dangling node. This can be expressed as a dot-product of a
 vector containing $1/n$ for positions corresponding to dangling nodes, and zero
 elswhere, with the vector $r$ for the current iteration.
 
-```python
+```{code-cell}
 def power2(Trans, damping=0.85, max_iter=10**5):
     n = Trans.shape[0]
     dangling = (1/n) * np.ravel(Trans.sum(axis=0) == 0)
@@ -1130,7 +1095,7 @@ if two vectors are scalar multiples of each other. Therefore, a correlation
 coefficient of 1 is sufficient to show that the above methods produce the same
 ranking.
 
-```python
+```{code-cell}
 pagerank_power = power(Trans)
 pagerank_power2 = power2(Trans)
 np.corrcoef([pagerank, pagerank_power, pagerank_power2])

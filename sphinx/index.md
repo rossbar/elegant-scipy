@@ -5,6 +5,8 @@
 maxdepth: 2
 caption: Chapters
 ---
+content/preface.md
+content/acknowledgements.md
 content/ch1.md
 content/ch2.md
 content/ch3.md
@@ -13,4 +15,5 @@ content/ch5.md
 content/ch6.md
 content/ch7.md
 content/ch8.md
+content/epilogue.md
 ```

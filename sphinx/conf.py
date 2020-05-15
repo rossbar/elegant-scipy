@@ -14,7 +14,7 @@ release = '0.0.0-dev'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "myst_parser",              # Supporting myst syntax
+    "myst_nb",                  # Supporting myst notebook format
     "sphinxcontrib.bibtex",     # LaTeX-style bibliographies
     "sphinx.ext.imgconverter",  # SVG support in LaTeX
     "sphinx.ext.intersphinx",   # Intersphinx for linking to project docs

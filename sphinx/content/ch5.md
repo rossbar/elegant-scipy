@@ -1,3 +1,16 @@
+---
+jupytext:
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: '0.8'
+    jupytext_version: 1.4.2
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
 # Contingency tables using sparse coordinate matrices
 
 > I like sparseness. There's something about that minimalist feel that can make
@@ -13,23 +26,16 @@ Instead, we can use SciPy's `sparse` module to solve these efficiently, examinin
 In addition to helping solve these "canonical" sparse matrix problems, `sparse` can be used for problems that are not obviously related to sparse matrices.
 
 One such problem is the comparison of image segmentations.
-(Review {doc}`Chapter 3 <ch3>` for a definition of segmentation.)
+(Review chapter 3 for a definition of segmentation.)
 
-The code sample motivating this chapter in {numref}`code:voi` uses sparse matrices twice: First, we
+The code sample motivating this chapter uses sparse matrices twice: First, we
 use code nominated by Andreas Mueller to compute a *contingency matrix* that
 counts the correspondence of labels between two segmentations. Then, with
 suggestions from Jaime Fernández del Río and Warren Weckesser, we use that
 contingency matrix to compute the *variation of information*, which measures
 the differences between segmentations.
 
-```{code-block} python
----
-name: code:voi
-caption: |
-    An implementation of a function for computing the 
-    *variation of information* that makes use of sparse matrices under the
-    hood.
----
+```{code-cell}
 def variation_of_information(x, y):
     # compute contingency matrix, aka joint probability matrix
     n = x.size
@@ -53,39 +59,38 @@ def variation_of_information(x, y):
     return float(hygx + hxgy)
 ```
 
-```{tip} **Python 3.5 pro-tip!**
-
-The `@` symbols in the above paragraph represent the *matrix multiplication*
-operator, and were introduced in Python 3.5 in 2015. This is one of the most
-compelling arguments to use Python 3 for scientific programmers: they enable
-the programming of linear algebra algorithms using code that remains very
-close to the original mathematics. Compare the above:
-
-`hygx = px @ xlog1x(Px_inv @ Pxy).sum(axis=1)`
-
-with the equivalent Python 2 code:
-
-`hygx = px.dot(xlog1x(Px_inv.dot(Pxy)).sum(axis=1))`
-
-By using the `@` operator to stay closer to mathematical notation, we
-can avoid implementation errors and produce code that is much easier to read.
-
-Actually, SciPy's authors knew this long before the `@` operator was
-introduced, and actually altered the meaning of the
-`*` operator when the inputs are SciPy matrices. Available in Python
-2.7, it lets us produce nice, readable code like the above:
-
-`hygx = -px * xlog(Px_inv * Pxy).sum(axis=1)`
-
-But there is a huge catch: this code will behave differently when `px` or
-`Px_inv` are SciPy matrices than when they are not! If `Px_inv` and `Pxy` are
-NumPy arrays, `*` produces the element-wise multiplication, while if they are
-SciPy matrices, it produces the matrix product! As you can imagine, this is
-the source of a great many errors, and much of the SciPy community has
-abandoned this use in favor of the uglier but unambiguous `.dot` method.
-
-Python 3.5's `@` operator gives us the best of both worlds!
-```
+> **Python 3.5 pro-tip! {.callout}**
+>
+> The `@` symbols in the above paragraph represent the *matrix multiplication*
+> operator, and were introduced in Python 3.5 in 2015. This is one of the most
+> compelling arguments to use Python 3 for scientific programmers: they enable
+> the programming of linear algebra algorithms using code that remains very
+> close to the original mathematics. Compare the above:
+>
+> `hygx = px @ xlog1x(Px_inv @ Pxy).sum(axis=1)`
+>
+> with the equivalent Python 2 code:
+>
+> `hygx = px.dot(xlog1x(Px_inv.dot(Pxy)).sum(axis=1))`
+>
+> By using the `@` operator to stay closer to mathematical notation, we
+> can avoid implementation errors and produce code that is much easier to read.
+>
+> Actually, SciPy's authors knew this long before the `@` operator was
+> introduced, and actually altered the meaning of the
+> `*` operator when the inputs are SciPy matrices. Available in Python
+> 2.7, it lets us produce nice, readable code like the above:
+>
+> `hygx = -px * xlog(Px_inv * Pxy).sum(axis=1)`
+>
+> But there is a huge catch: this code will behave differently when `px` or
+> `Px_inv` are SciPy matrices than when they are not! If `Px_inv` and `Pxy` are
+> NumPy arrays, `*` produces the element-wise multiplication, while if they are
+> SciPy matrices, it produces the matrix product! As you can imagine, this is
+> the source of a great many errors, and much of the SciPy community has
+> abandoned this use in favor of the uglier but unambiguous `.dot` method.
+>
+> Python 3.5's `@` operator gives us the best of both worlds!
 
 ## Contingency tables
 
@@ -97,14 +102,14 @@ You encode the detector outcome as a numeric value, 0 for not spam and 1 for spa
 
 If you have a set of 10 emails to classify, you end up with a vector of *predictions*:
 
-```python
+```{code-cell}
 import numpy as np
 pred = np.array([0, 1, 0, 0, 1, 1, 1, 0, 1, 1])
 ```
 
 You can check how well you've done by comparing it to a vector of *ground truth*, classifications obtained by inspecting each message by hand.
 
-```python
+```{code-cell}
 gt = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
 ```
 
@@ -115,9 +120,8 @@ Conversely, at positions where both values are 1, the predictor has correctly id
 
 Then, there are two kinds of errors.
 If we let a spam message (where `gt` is 1) through to the user's inbox (`pred` is 0), we've made a *false negative* error.
-If we predict a legitimate message (`gt` is 0) to be spam (`pred` is 1), we've made a *false positive* prediction[^spam].
-
-[^spam]: An email from the director of my scientific institute once landed in my spam folder. The reason? His announcement of a postdoc talk competition started with "You could win \$500!"
+If we predict a legitimate message (`gt` is 0) to be spam (`pred` is 1), we've made a *false positive* prediction.
+(An email from the director of my scientific institute once landed in my spam folder. The reason? His announcement of a postdoc talk competition started with "You could win &#36;500!")
 
 If we want to measure how well we are doing, we have to count the above kinds of errors using a *contingency matrix*.
 (This is also sometimes called a confusion matrix. The name is apt.)
@@ -127,19 +131,11 @@ So, for example, since there are 4 true positives (where `pred` and `gt` are bot
 
 Generally:
 
-% TODO: Add `(key)=`-style reference targeting to $$-enclosed math
 $$C_{i, j} = \sum_k{\mathbb{I}(p_k = i) \mathbb{I}(g_k = j)}$$
 
-% TODO: Update with explicit xrefs
 Here's an intuitive, but inefficient way of building the above:
 
-```{code-block} python
----
-name: code:naive_confusion
-caption: |
-    Simple implementation of a function for computing the confusion matrix
-    for a binary classifier.
----
+```{code-cell}
 def confusion_matrix(pred, gt):
     cont = np.zeros((2, 2))
     for i in [0, 1]:
@@ -150,11 +146,10 @@ def confusion_matrix(pred, gt):
 
 We can check that this gives use the right counts:
 
-```python
+```{code-cell}
 confusion_matrix(pred, gt)
 ```
 
-% TODO: HANDLE EXERCISES
 <!-- exercise begin -->
 **Exercise:** Why did we call this inefficient?
 
@@ -176,7 +171,7 @@ inefficient.
 
 **Exercise:** Write an alternative way of computing the confusion matrix that only makes a single pass through `pred` and `gt`.
 
-```python
+```{code-cell}
 def confusion_matrix1(pred, gt):
     cont = np.zeros((2, 2))
     # your code goes here
@@ -190,7 +185,7 @@ def confusion_matrix1(pred, gt):
 Our first solution uses Python's built-in `zip` function to pair together
 labels from `pred` and `gt`.
 
-```python
+```{code-cell}
 def confusion_matrix1(pred, gt):
     cont = np.zeros((2, 2))
     for i, j in zip(pred, gt):
@@ -201,7 +196,7 @@ def confusion_matrix1(pred, gt):
 Our second solution is to iterate over all possible indices of `pred` and `gt`
 and manually grab the corresponding value from each array:
 
-```python
+```{code-cell}
 def confusion_matrix1(pred, gt):
     cont = np.zeros((2, 2))
     for idx in range(len(pred)):
@@ -226,7 +221,7 @@ That's 5 categories, which we'll label 0 to 4.
 The confusion matrix will now be 5-by-5, with matches counted on the diagonal,
 and errors counted on the off-diagonal entries.
 
-The definition of the `confusion_matrix` function in {numref}`code:naive_confusion` doesn't extend well
+The definition of the `confusion_matrix` function, above, doesn't extend well
 to this larger matrix, because now we must have *twenty-five* passes though the
 result and ground truth arrays.
 This problem only grows as we add more email categories, such as social media
@@ -238,7 +233,7 @@ notifications.
 above, but instead of assuming two categories, infer the number of categories
 from the input.
 
-```python
+```{code-cell}
 def general_confusion_matrix(pred, gt):
     n_classes = None  # replace `None` with something useful
     # your code goes here
@@ -252,7 +247,7 @@ the maximum label. We then add 1 to it to account for the zero label and
 Python's 0-based indexing. We then create the matrix and fill it in the same
 way as above:
 
-```python
+```{code-cell}
 def general_confusion_matrix(pred, gt):
     n_classes = max(np.max(pred), np.max(gt)) + 1
     cont = np.zeros((n_classes, n_classes))
@@ -275,21 +270,20 @@ the 0 entries of the contingency matrix is increasingly wasteful.
 Instead, we can use the `sparse` module of SciPy, which contains objects to
 efficiently represent sparse matrices.
 
-## `scipy.sparse` data formats
+## scipy.sparse data formats
 
-We covered the internal data format of NumPy arrays in {doc}`Chapter 1 <ch1>`.
+We covered the internal data format of NumPy arrays in Chapter 1.
 We hope you agree that it's a fairly intuitive, and, in some sense, inevitable
 format to hold n-dimensional array data.
 For sparse matrices, there are actually a wide array of possible formats, and
 the "right" format depends on the problem you want to solve.
 We'll cover the two most commonly-used formats, but for a complete list, see the
-% TODO: explicit xref to comparison table
-comparison table later in the chapter, as well as 
-{py:mod}`the online documentation for scipy.sparse <scipy.sparse>`.
+comparison table later in the chapter, as well as the online documentation for
+`scipy.sparse`.
 
 ### COO (COOrdinate) format
 
-Perhaps the most intuitive is the coordinate, or {abbr}`COO (Coordinate)`, format.
+Perhaps the most intuitive is the coordinate, or COO, format.
 This uses three 1D arrays to represent a 2D matrix $A$.
 Each of these arrays has length equal to the number of nonzero values in $A$,
 and together they list (i, j, value) coordinates of every entry that is not
@@ -305,14 +299,14 @@ Much more efficient!
 
 So, to represent the matrix:
 
-```python
+```{code-cell}
 s = np.array([[ 4,  0, 3],
               [ 0, 32, 0]], dtype=float)
 ```
 
 We can do the following:
 
-```python
+```{code-cell}
 from scipy import sparse
 
 data = np.array([4, 3, 32], dtype=float)
@@ -326,7 +320,7 @@ The `.toarray()` method of every sparse format in `scipy.sparse` returns a
 NumPy array representation of the sparse data.
 We can use this to check that we created `s_coo` correctly:
 
-```python
+```{code-cell}
 s_coo.toarray()
 ```
 
@@ -336,7 +330,7 @@ because it can hide a potentially very large operation: the dense version
 of a sparse matrix can be orders of magnitude bigger than the sparse matrix
 itself, bringing a computer to its knees, in just three keystrokes!
 
-```python
+```{code-cell}
 s_coo.A
 ```
 
@@ -350,12 +344,7 @@ implement a sequence of mathematical equations).
 
 **Exercise:** write out the COO representation of the following matrix:
 
-```{code-block} python
----
-name: code:dense_example
-caption: |
-    Example of a dense matrix.
----
+```{code-cell}
 s2 = np.array([[0, 0, 6, 0, 0],
                [1, 2, 0, 4, 5],
                [0, 1, 0, 0, 0],
@@ -368,26 +357,26 @@ s2 = np.array([[0, 0, 6, 0, 0],
 **Solution:** We first list the non-zero elements of the array, left-to-right and
 top-to-bottom, as if reading a book:
 
-```python
+```{code-cell}
 s2_data = np.array([6, 1, 2, 4, 5, 1, 9, 6, 7])
 ```
 
 We then list the row indices of those values in the same order:
 
-```python
+```{code-cell}
 s2_row = np.array([0, 1, 1, 1, 1, 2, 3, 4, 4])
 ```
 
 And finally the column indices:
 
-```python
+```{code-cell}
 s2_col = np.array([2, 0, 1, 3, 4, 1, 0, 3, 4])
 ```
 
 We can easily check that these produce the right matrix, by checking equality
 in both directions:
 
-```python
+```{code-cell}
 s2_coo0 = sparse.coo_matrix(s2)
 print(s2_coo0.data)
 print(s2_coo0.row)
@@ -396,7 +385,7 @@ print(s2_coo0.col)
 
 and:
 
-```python
+```{code-cell}
 s2_coo1 = sparse.coo_matrix((s2_data, (s2_row, s2_col)))
 print(s2_coo1.toarray())
 ```
@@ -408,30 +397,29 @@ print(s2_coo1.toarray())
 Unfortunately, although the COO format is intuitive, it's not very optimized to
 use the minimum amount of memory, or to traverse the array as quickly as
 possible during computations.
-(Remember from {ref}`Chapter 1 <sec:why_arrays>`, *data locality* is very important to efficient
+(Remember from Chapter 1, *data locality* is very important to efficient
 computation!)
-% TODO: Reference to exercise
 However, you can look at your COO representation above to help you identify
 redundant information:
 Notice all those repeated `1`s?
 
 ### CSR (Compressed Sparse Row) format
 
-If we use {abbr}`COO` to enumerate the nonzero entries row-by-row, rather than in
+If we use COO to enumerate the nonzero entries row-by-row, rather than in
 arbitrary order (which the format allows), we end up with many consecutive,
 repeated values in the `row` array.
 These can be compressed by indicating the *indices* in `col` where the next row
 starts, rather than repeatedly writing the row index.
-This is the basis for the *compressed sparse row* or {abbr}`CSR (Compressed Sparse Row)` format.
+This is the basis for the *compressed sparse row* or *CSR* format.
 
-Let's work through the example above. In {abbr}`CSR` format, the `col` and `data`
+Let's work through the example above. In CSR format, the `col` and `data`
 arrays are unchanged (but `col` is renamed to `indices`). However, the `row`
 array, instead of indicating the rows, indicates *where* in `col` each row
 begins, and is renamed to `indptr`, for "index pointer".
 
 So, let's look at `row` and `col` in COO format, ignoring `data`:
 
-```python
+```{code-cell}
 row = [0, 1, 1, 1, 1, 2, 3, 4, 4]
 col = [2, 0, 1, 3, 4, 1, 0, 3, 4]
 ```
@@ -444,16 +432,15 @@ The final index, indicating the end of the matrix, is the total number of
 nonzero values (9).
 So:
 
-```python
+```{code-cell}
 indptr = [0, 1, 5, 6, 7, 9]
 ```
 
-Let's use these hand-computed arrays to build a {abbr}`CSR` matrix in SciPy.
-We can check our work by comparing the `.A` output from our {abbr}`COO` and
-{abbr}`CSR` representations to the numpy array `s2` that we defined 
-in {numref}`code:dense_example`.
+Let's use these hand-computed arrays to build a CSR matrix in SciPy.
+We can check our work by comparing the `.A` output from our COO and
+CSR representations to the numpy array `s2` that we defined earlier.
 
-```python
+```{code-cell}
 data = np.array([6, 1, 2, 4, 5, 1, 9, 6, 7])
 
 coo = sparse.coo_matrix((data, (row, col)))
@@ -473,7 +460,6 @@ one can think of the entire web as a large, sparse, $N \times N$ matrix.
 Each entry $X_{ij}$ indicates whether web page $i$ links to page $j$.
 By normalizing this matrix and solving for its dominant eigenvector,
 one obtains the so-called PageRank—one of the numbers Google uses to
-%TODO: Explicit forward ref to ch. 6
 order your search results. (You can read more about this in the next chapter.)
 
 As another example, we can represent the human brain as a large $m \times m$
@@ -483,9 +469,11 @@ correlations can be calculated and entered into a matrix $C_{ij}$.
 Thresholding this matrix produces a sparse matrix of ones and zeros. 
 The eigenvector corresponding to the second-smallest eigenvalue of this matrix
 partitions the $m$ brain areas into subgroups, which, it turns out,
-are often related to functional regions of the brain{cite}`newman2004finding`!
+are often related to functional regions of the brain [^Newman]!
 
-% TODO: convert table format
+[^Newman]: Newman MEJ (2006). Modularity and community structure in networks.
+           PNAS 103(23):8577-8582. DOI:10.1073/pnas.0601602103
+
 <div class="landscape">
 <table style="font-size: 50%;">
 <colgroup>
@@ -613,28 +601,30 @@ transformation.
 
 We'll use the following image from scikit-image as example data:
 
-```python
+```{code-cell}
 # Make plots appear inline, set custom plotting style
 %matplotlib inline
 import matplotlib.pyplot as plt
 plt.style.use('style/elegant.mplstyle')
 ```
 
-```python
+```{code-cell}
 from skimage import data
 image = data.camera()
 plt.imshow(image);
 ```
+
 <!-- caption text="Test image of a cameraman" -->
 
 As a test operation, we'll be rotating the image by 30 degrees. We begin
 by defining the transformation matrix, $H$ which, when multiplied with a
 coordinate from the input image, $[r, c, 1]$, will give us the
-corresponding coordinate in the output, $[r', c', 1]$[^homog].
+corresponding coordinate in the output, $[r', c', 1]$. (Note: we are using
+[homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates),
+which have a 1 appended to them and which give greater flexibility when
+defining linear transforms.)
 
-[^homog]: Note: we are using [homogeneous coordinates](https://en.wikipedia.org/wiki/Homogeneous_coordinates), which have a 1 appended to them and which give greater flexibility when defining linear transforms.
-
-```python
+```{code-cell}
 angle = 30
 c = np.cos(np.deg2rad(angle))
 s = np.sin(np.deg2rad(angle))
@@ -644,11 +634,11 @@ H = np.array([[c, -s,  0],
               [0,  0,  1]])
 ```
 
-You can verify that this works by multiplying H with the point $(1, 0)$. A
-30-degree counterclockwise rotation around the origin $(0, 0)$ should take us
+You can verify that this works by multiplying H with the point (1, 0). A
+30-degree counterclockwise rotation around the origin (0, 0) should take us
 to point $(\frac{\sqrt{3}}{2}, \frac{1}{2})$:
 
-```python
+```{code-cell}
 point = np.array([1, 0, 1])
 print(np.sqrt(3) / 2)
 print(H @ point)
@@ -658,33 +648,24 @@ Similarly, applying the 30-degree rotation three times should get us to the
 column axis, at point (0, 1). We can see that this works, minus some floating
 point approximation error:
 
-```python
+```{code-cell}
 print(H @ H @ H @ point)
 ```
 
 Now, we will build a function that defines a "sparse operator". The goal of
 the sparse operator is to take all pixels of the output image, figure out where
 they came from in the input image, and do the appropriate (bi-linear)
-interpolation (see {numref}`fig:bilinear`) to calculate their values. It does this using just
+interpolation (see figure below) to calculate their values. It does this using just
 matrix multiplication on the image values, and thus is extremely fast.
 
-```{figure} https://upload.wikimedia.org/wikipedia/commons/e/ea/BilinearInterpolation.svg
----
-name: fig:bilinear
----
-Diagram explaining bilinear interpolation. The value at
-point $P$ is estimated as a weighted sum of the values at $Q_{11}$,
-$Q_{12}$, $Q_{21}$, $Q_{22}$.
-```
+<img src="https://upload.wikimedia.org/wikipedia/commons/e/ea/BilinearInterpolation.svg"/>
+<!-- caption text="Diagram explaining bilinear interpolation. The value at
+point $P$ is estimated as a weighted sum of the values at $Q_{11}$, $Q_{12}$,
+$Q_{21}$, $Q_{22}$." -->
 
 Let's look at the function that builds our sparse operator:
 
-```{code-block} python
----
-name: code:homography
-caption: |
-    Implementation of linear transformation with sparse matrices.
----
+```{code-cell}
 from itertools import product
 
 def homography(tf, image_shape):
@@ -766,18 +747,19 @@ def homography(tf, image_shape):
 
 Recall that we apply the sparse operator as follows:
 
-```python
+```{code-cell}
 def apply_transform(image, tf):
     return (tf @ image.flat).reshape(image.shape)
 ```
 
 Let's try it out!
 
-```python
+```{code-cell}
 tf = homography(H, image.shape)
 out = apply_transform(image, tf)
 plt.imshow(out);
 ```
+
 <!-- caption text="Rotated cameraman image" -->
 
 There's that rotation!
@@ -808,7 +790,7 @@ an image about the origin, as well as how to slide it around. So what we will
 do is slide the image so that the center is at the origin, rotate it, and then
 slide it back.
 
-```python
+```{code-cell}
 def transform_rotate_about_center(shape, degrees):
     """Return the homography matrix for a rotation about an image center."""
     c = np.cos(np.deg2rad(angle))
@@ -837,10 +819,11 @@ def transform_rotate_about_center(shape, degrees):
 
 We can test that this works:
 
-```python
+```{code-cell}
 tf = transform_rotate_about_center(image.shape, 30)
 plt.imshow(apply_transform(image, tf));
 ```
+
 <!-- caption text="Cameraman image rotated about its center" -->
 
 <!-- solution end -->
@@ -854,11 +837,11 @@ fair, we need to tell `ndimage` that we want linear interpolation with `order=1`
 and that we want to ignore pixels outside of the original shape, with
 `reshape=False`.
 
-```python
+```{code-cell}
 %timeit apply_transform(image, tf)
 ```
 
-```python
+```{code-cell}
 from scipy import ndimage as ndi
 %timeit ndi.rotate(image, 30, reshape=False, order=1)
 ```
@@ -876,14 +859,14 @@ a look at the out-of-the-box use that inspired this chapter.
 ## Back to contingency tables
 
 You might recall that we are trying to quickly build a sparse, joint
-probability matrix using SciPy's sparse formats. We know that the {abbr}`COO` format
+probability matrix using SciPy's sparse formats. We know that the COO format
 stores sparse data as three arrays, containing the row and column coordinates
 of nonzero entries, as well as their values. But we can use a little known
 feature of COO to obtain our matrix extremely quickly.
 
 Have a look at this data:
 
-```python
+```{code-cell}
 row = [0, 0, 2]
 col = [1, 1, 2]
 dat = [5, 7, 1]
@@ -895,7 +878,7 @@ Notice that the entry at (row, column) position (0, 1) appears twice: first as
 made for both the earliest entry encountered, or the latest, but what was in
 fact chosen is the *sum*:
 
-```python
+```{code-cell}
 print(S.toarray())
 ```
 
@@ -906,13 +889,7 @@ The ones will get summed together and count the number of times that label $i$
 in `pred` occurs together with label $j$ in `gt` at position $i, j$ in the
 matrix! Let's try it out:
 
-```{code-block} python
----
-name: code:sparse_confusion
-caption: |
-    A function for building a sparse confusion matrix leveraging the 
-    implicit summing of repeat values in the {abbr}`COO` sparse format.
----
+```{code-cell}
 from scipy import sparse
 
 def confusion_matrix(pred, gt):
@@ -922,12 +899,12 @@ def confusion_matrix(pred, gt):
 
 To look at a small one, we simply use the `.toarray` method, as above:
 
-```python
+```{code-cell}
 cont = confusion_matrix(pred, gt)
 print(cont)
 ```
 
-```python
+```{code-cell}
 print(cont.toarray())
 ```
 
@@ -935,7 +912,7 @@ It works!
 
 <!-- exercise begin -->
 
-**Exercise:** Remember from {ref}`Chapter 1 <sec:broadcasting>` that NumPy has built-in tools for
+**Exercise:** Remember from Chapter 1 that NumPy has built-in tools for
 repeating arrays using *broadcasting*. How can you reduce the memory footprint
 required for the contingency matrix computation?
 
@@ -947,7 +924,7 @@ required for the contingency matrix computation?
 values to sum by `coo_matrix`. We can use `broadcast_to` to create a similar
 array with only one element, "virtually" repeated n times:
 
-```python
+```{code-cell}
 def confusion_matrix(pred, gt):
     n = pred.size
     ones = np.broadcast_to(1., n)  # virtual array of 1s of size n
@@ -957,7 +934,7 @@ def confusion_matrix(pred, gt):
 
 Let's make sure it still works as expected:
 
-```python
+```{code-cell}
 cont = confusion_matrix(pred, gt)
 print(cont.toarray())
 ```
@@ -978,7 +955,7 @@ And numpy arrays allow us to do this transparently, because their `.ravel()` met
 
 As an example, here's a segmentation of a tiny 3 by 3 image:
 
-```python
+```{code-cell}
 seg = np.array([[1, 1, 2],
                 [1, 2, 2],
                 [3, 3, 3]], dtype=int)
@@ -986,7 +963,7 @@ seg = np.array([[1, 1, 2],
 
 Here’s the ground truth, what some person said was the correct way to segment this image:
 
-```python
+```{code-cell}
 gt = np.array([[1, 1, 1],
                [1, 1, 1],
                [2, 2, 2]], dtype=int)
@@ -995,35 +972,34 @@ gt = np.array([[1, 1, 1],
 We can think of these two as classifications, just like before. Every pixel is
 a different prediction.
 
-```python
+```{code-cell}
 print(seg.ravel())
 print(gt.ravel())
 ```
 
-Then, as we showed in {numref}`code:sparse_confusion`, the contingency matrix is given by:
+Then, like above, the contingency matrix is given by:
 
-```python
+```{code-cell}
 cont = sparse.coo_matrix((np.ones(seg.size),
                           (seg.ravel(), gt.ravel())))
 print(cont)
 ```
 
 Some indices appear more than once, but we can use the summing feature of the
-{abbr}`COO` format to confirm that this represents the matrix we want:
+COO format to confirm that this represents the matrix we want:
 
-```python
+```{code-cell}
 print(cont.toarray())
 ```
 
 How do we convert this table into a measure of how well `seg` represents `gt`?
 Segmentation is a hard problem, so it's important to measure how well a
-segmentation algorithm is doing by comparing its output to a "ground truth"
+segmentation algorithm is doing, by comparing its output to a "ground truth"
 segmentation that is manually produced by a human.
 
 But, even this comparison is not an easy task. How do we define how "close" an
 automated segmentation is to a ground truth?  We'll illustrate one method, the
-*variation of information* or {abbr}`VI (Variation of Information)` {cite}`meilua2003comparing`.
-This is defined as the answer
+*variation of information* or VI (Meila, 2005). This is defined as the answer
 to the following question: on average, for a random pixel, if we are given its
 segment ID in one segmentation, how much more *information* do we need to
 determine its ID in the other segmentation?
@@ -1033,7 +1009,6 @@ ID in one tells you the segment ID in the other, with no additional information.
 But as the segmentations become more different, knowing an ID in one doesn't tell
 you the ID in the other without more information.
 
-(sec:entropy_intro)=
 ## Information theory in brief
 
 In order to answer this question, we'll need a quick primer on information
@@ -1134,13 +1109,8 @@ By observing many days, we can build a *contingency matrix*, just like the
 ones in the classification examples, measuring the month of a day and whether
 it rained.
 We're not going to travel to LA to do this (fun though it would be), and
-instead we use the historical data in {numref}`tab:LA`, roughly eyeballed from
+instead we use the historical table below, roughly eyeballed from
 [WeatherSpark](https://weatherspark.com/averages/30699/Los-Angeles-California-United-States):
-
-```{table} Approximate probablility of rain or shine for a given day in each month of the year in LA
----
-name: tab:LA
----
 
 | Month | P(rain)  | P(shine) |
 | -----:| -------- | -------- |
@@ -1156,7 +1126,6 @@ name: tab:LA
 |10|0.15|0.85|
 |11|0.18|0.82|
 |12|0.23|0.77|
-```
 
 The conditional entropy of rain given month is then:
 
@@ -1189,7 +1158,7 @@ entropy of the month variable? (Ignore the different number of days in a
 month.) Which one is greater? (*Hint:* the probabilities in the table are
 the conditional probabilities of rain given month.)
 
-```python
+```{code-cell}
 prains = np.array([25, 27, 24, 18, 14, 11, 7, 8, 10, 15, 18, 23]) / 100
 pshine = 1 - prains
 p_rain_g_month = np.column_stack([prains, pshine])
@@ -1204,7 +1173,7 @@ p_rain_month = None
 **Solution:** To obtain the joint probability table, we simply divide the table by its total,
 in this case, 12:
 
-```python
+```{code-cell}
 print('table total:', np.sum(p_rain_g_month))
 p_rain_month = p_rain_g_month / np.sum(p_rain_g_month)
 ```
@@ -1213,7 +1182,7 @@ Now we can compute the conditional entropy of the month given rain. (This is
 like asking: if we know it's raining, how much more information do we need to
 know to figure out what month it is, on average?)
 
-```python
+```{code-cell}
 p_rain = np.sum(p_rain_month, axis=0)
 p_month_g_rain = p_rain_month / p_rain
 Hmr = np.sum(p_rain * p_month_g_rain * np.log2(1 / p_month_g_rain))
@@ -1222,7 +1191,7 @@ print(Hmr)
 
 Let's compare that to the entropy of the months:
 
-```python
+```{code-cell}
 p_month = np.sum(p_rain_month, axis=1)  # 1/12, but this method is more general
 Hm = np.sum(p_month * np.log2(1 / p_month))
 print(Hm)
@@ -1235,14 +1204,11 @@ closer to guessing what month it is! Don't bet the farm on that guess.
 
 <!-- exercise end -->
 
-Together, these two values define the *variation of information*:
+Together, these two values define the variation of information (VI):
 
-```{math}
----
-label: eq:voi
----
+$$
 VI(A, B) = H(A | B) + H(B | A)
-```
+$$
 
 ## Information theory in segmentation: variation of information
 
@@ -1268,7 +1234,7 @@ $$
 
 Here's a simple example:
 
-```python
+```{code-cell}
 S = np.array([[0, 1],
               [2, 3]], int)
 
@@ -1288,14 +1254,14 @@ remember that numpy arrays are actually linear (1D) chunks of data with some
 shape and other metadata attached.
 As we mentioned before, we can ignore the shape by using the arrays' `.ravel()` method:
 
-```python
+```{code-cell}
 S.ravel()
 ```
 
 Now we can just make the contingency table in the same way as when we were
 predicting spam:
 
-```python
+```{code-cell}
 cont = sparse.coo_matrix((np.broadcast_to(1., S.size),
                           (S.ravel(), T.ravel())))
 cont = cont.toarray()
@@ -1305,14 +1271,14 @@ cont
 In order to make this a table of probabilities, instead of counts, we simply
 divide by the total number of pixels:
 
-```python
+```{code-cell}
 cont /= np.sum(cont)
 ```
 
 Finally, we can use this table to compute the probabilities of labels in *either*
 `S` or `T`, using the axis-wise sums:
 
-```python
+```{code-cell}
 p_S = np.sum(cont, axis=1)
 p_T = np.sum(cont, axis=0)
 ```
@@ -1321,7 +1287,7 @@ There is a small kink in writing Python code to compute entropy:
 although $0 \log(0)$ is defined to be equal to 0, in Python, it is undefined,
 and results in a `nan` (not a number) value:
 
-```python
+```{code-cell}
 print('The log of 0 is: ', np.log2(0))
 print('0 times the log of 0 is: ', 0 * np.log2(0))
 ```
@@ -1331,7 +1297,7 @@ Additionally, we'll need a slightly different strategy depending on whether the
 input is a numpy array or a SciPy sparse matrix.
 We'll write the following convenience function:
 
-```python
+```{code-cell}
 def xlog1x(arr_or_mat):
     """Compute the element-wise entropy function of an array or matrix.
 
@@ -1360,12 +1326,12 @@ def xlog1x(arr_or_mat):
 
 Let's make sure it works:
 
-```python
+```{code-cell}
 a = np.array([0.25, 0.25, 0, 0.25, 0.25])
 xlog1x(a)
 ```
 
-```python
+```{code-cell}
 mat = sparse.csr_matrix([[0.125, 0.125, 0.25,    0],
                          [0.125, 0.125,    0, 0.25]])
 xlog1x(mat).A
@@ -1373,14 +1339,14 @@ xlog1x(mat).A
 
 So, the conditional entropy of $S$ given $T$:
 
-```python
+```{code-cell}
 H_ST = np.sum(np.sum(xlog1x(cont / p_T), axis=0) * p_T)
 H_ST
 ```
 
 And the converse:
 
-```python
+```{code-cell}
 H_TS = np.sum(np.sum(xlog1x(cont / p_S[:, np.newaxis]), axis=1) * p_S)
 H_TS
 ```
@@ -1400,7 +1366,7 @@ to us by Warren Weckesser on StackOverflow.
 The linear algebra version efficiently computes a contingency matrix for very
 large amounts of data, up to billions of points, and is elegantly concise.
 
-```python
+```{code-cell}
 import numpy as np
 from scipy import sparse
 
@@ -1438,7 +1404,7 @@ def variation_of_information(x, y):
 We can check that this gives the right value (1) for the VI of our toy `S`
 and `T`:
 
-```python
+```{code-cell}
 variation_of_information(S, T)
 ```
 
@@ -1449,15 +1415,13 @@ matrices, where NumPy would be inefficient.
 
 ## Using variation of information
 
-To finish, let's demonstrate the use of {abbr}`VI` to estimate the best possible
+To finish, let's demonstrate the use of VI to estimate the best possible
 automated segmentation of an image.
-% TODO: Change to link to image rather than section when MD links supported
-You may remember our friendly stalking tiger from {ref}`Chapter 3 <sec:rag>`.
+You may remember our friendly stalking tiger from chapter 3.
 (If you don't, you might want to work on your threat-assessment skills!)
 Using our skills from chapter 3, we're going to generate a number of possible ways of segmenting the tiger image, and then figure out the best one.
 
-
-```python
+```{code-cell}
 from skimage import io
 
 url = ('http://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds'
@@ -1466,20 +1430,20 @@ tiger = io.imread(url)
 
 plt.imshow(tiger);
 ```
+
 <!-- caption text="BSDS tiger image, number 108073" -->
 
 
 In order to check our image segmentation, we're going to need some ground truth.
 It turns out that humans are awesome at detecting tigers (natural selection for the win!), so all we need to do is ask a human to find the tiger.
-Luckily, researchers at Berkeley have already asked dozens of humans to look
-at this image and manually segment it {cite}`detection2011arbelaez`.
+Luckily, researchers at Berkeley have already asked dozens of humans to look at this image and manually segment it [^bsds].
 Let's grab one of the segmentation images from the [Berkeley Segmentation Dataset and Benchmark](https://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/).
 It's worth noting that there is quite substantial variation between the segmentations performed by humans.
 If you look through the [various tiger segmentations](https://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/BSDS300/html/dataset/images/color/108073.html), you will see that some humans are more pedantic than others about tracing around the reeds, while others consider the reflections to be objects worth segmenting out from the rest of the water.
 We have chosen a segmentation that we like (one with pedantic-reed-tracing, because we are perfectionistic scientist-types.)
 But to be clear, we really have no single ground truth!
 
-```python
+```{code-cell}
 from scipy import ndimage as ndi
 from skimage import color
 
@@ -1489,6 +1453,7 @@ human_seg_url = ('http://www.eecs.berkeley.edu/Research/Projects/CS/'
 boundaries = io.imread(human_seg_url)
 plt.imshow(boundaries);
 ```
+
 <!-- caption text="Human segmentations of the tiger image" -->
 
 
@@ -1496,24 +1461,17 @@ Overlaying the tiger image with the human segmentation, we can see that (unsurpr
 They have also segmented out the river bank, and a tuft of reeds.
 Nice job, human #1122!
 
-```python
+```{code-cell}
 human_seg = ndi.label(boundaries > 100)[0]
 plt.imshow(color.label2rgb(human_seg, tiger));
 ```
+
 <!-- caption text="Human segmentation of the tiger image, overlaid" -->
 
 
-Now, let's grab our image segmentation code from {doc}`Chapter 3 <ch3>`,
-and see how well a Python does at recognizing a tiger!
-We'll re-define the important functions to complete our segmentation task
-in {numref}`code:ch5rag` for convenience:
+Now, let's grab our image segmentation code from chapter 3, and see how well a Python does at recognizing a tiger!
 
-```{code-block} python
----
-name: code:ch5rag
-caption: |
-    Borrowing our segmentation code from {doc}`Chapter 3 <ch3>`.
----
+```{code-cell}
 # Draw a region adjacency graph (RAG) - all code from Ch3
 import networkx as nx
 import numpy as np
@@ -1549,20 +1507,21 @@ def threshold_graph(g, t):
     g.remove_edges_from(to_remove)
 ```
 
-```python
+```{code-cell}
 # Baseline segmentation
 from skimage import segmentation
 seg = segmentation.slic(tiger, n_segments=30, compactness=40.0,
                         enforce_connectivity=True, sigma=3)
 plt.imshow(color.label2rgb(seg, tiger));
 ```
+
 <!-- caption text="Baseline SLIC segmentation of the tiger image" -->
 
 In chapter 3, we set the graph threshold at 80 and sort of hand-waved over the whole thing.
 Now we're going to have a closer look at how this threshold impacts our segmentation accuracy.
 Let's pop the segmentation code into a function so we can play with it.
 
-```python
+```{code-cell}
 def rag_segmentation(base_seg, image, threshold=80):
     g = build_rag(base_seg, image)
     for n in g:
@@ -1584,16 +1543,18 @@ def rag_segmentation(base_seg, image, threshold=80):
 
 Let's try a few thresholds and see what happens:
 
-```python
+```{code-cell}
 auto_seg_10 = rag_segmentation(seg, tiger, threshold=10)
 plt.imshow(color.label2rgb(auto_seg_10, tiger));
 ```
+
 <!-- caption text="Tiger RAG-based segmentation at threshold 10" -->
 
-```python
+```{code-cell}
 auto_seg_40 = rag_segmentation(seg, tiger, threshold=40)
 plt.imshow(color.label2rgb(auto_seg_40, tiger));
 ```
+
 <!-- caption text="Tiger RAG-based segmentation at threshold 40" -->
 
 Actually, in chapter 3 we did the segmentation a bunch of times with different thresholds and then (because we're human, so we can) picked one that produced a good segmentation.
@@ -1602,21 +1563,20 @@ Clearly, we need a way to automate this.
 
 We can see that the higher threshold seems to producing a better segmentation.
 But we have a ground truth, so we can actually put a number to this!
-Using all our sparse matrix skills, we can calculate the {abbr}`VI` for each segmentation.
+Using all our sparse matrix skills, we can calculate the *variation of information* or VI for each segmentation.
 
-
-```python
+```{code-cell}
 variation_of_information(auto_seg_10, human_seg)
 ```
 
-```python
+```{code-cell}
 variation_of_information(auto_seg_40, human_seg)
 ```
 
 The high threshold has a smaller variation of information, so it's a better segmentation!
 Now we can calculate the VI for a range of possible thresholds and see which one gives us closes segmentation to the human ground truth.
 
-```python
+```{code-cell}
 # Try many thresholds
 def vi_at_threshold(seg, tiger, human_seg, threshold):
     auto_seg = rag_segmentation(seg, tiger, threshold)
@@ -1627,26 +1587,27 @@ vi_per_threshold = [vi_at_threshold(seg, tiger, human_seg, threshold)
                     for threshold in thresholds]
 ```
 
-```python
+```{code-cell}
 plt.plot(thresholds, vi_per_threshold);
 ```
+
 <!-- caption text="Segmentation VI as a function of threshold" -->
 
 Unsurprisingly, it turns out that eyeballing it and picking threshold=80, did give us one of the best segmentations.
 But now we have a way to automate this process for any image!
 
-```python
+```{code-cell}
 auto_seg = rag_segmentation(seg, tiger, threshold=80)
 plt.imshow(color.label2rgb(auto_seg, tiger));
 ```
-<!-- caption text="Optimal tiger segmentation based on the VI curve" -->
 
+<!-- caption text="Optimal tiger segmentation based on the VI curve" -->
 
 <!-- exercise begin -->
 
 **Exercise:** Segmentation in practice
 
-Try finding the best threshold for a selection of other images from the [Berkeley Segmentation Dataset and Benchmark](https://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/) {cite}`detection2011arbelaez`.
+Try finding the best threshold for a selection of other images from the [Berkeley Segmentation Dataset and Benchmark](https://www.eecs.berkeley.edu/Research/Projects/CS/vision/bsds/) [^bsds].
 Using the mean or median of those thresholds, then go and segment a new image. Did you get a reasonable segmentation?
 
 <!-- exercise end -->
@@ -1657,7 +1618,6 @@ probably start noticing opportunities to use them all the time... And you'll
 know how.
 
 One particular situation where sparse matrices come extremely handy is in
-sparse linear algebra. Read on to the {doc}`next chapter <ch6>` to find out more!
+sparse linear algebra. Read on to the next chapter to find out more!
 
-```{bibliography} references.bib
-```
+[^bsds]: P. Arbelaez, M. Maire, C. Fowlkes and J. Malik. IEEE TPAMI, Vol. 33, No. 5, pp. 898-916, May 2011.

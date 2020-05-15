@@ -1,4 +1,16 @@
-(sec:ch2_intro)=
+---
+jupytext:
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: '0.8'
+    jupytext_version: 1.4.2
+kernelspec:
+  display_name: Python 3
+  language: python
+  name: python3
+---
+
 # Quantile Normalization with NumPy and SciPy
 
 > Distress not yourself if you cannot at first understand the deeper mysteries
@@ -6,35 +18,21 @@
 >
 > — Edwin A. Abbott, *Flatland: A Romance of Many Dimensions*
 
-In this chapter, we will continue to analyze the gene expression data from 
-{doc}`Chapter 1 <ch1>`, but with a slightly different purpose: we want to use each patient's *gene expression profile* (the full vector of their gene expression measurements) to predict their expected survival.
-In order to use full profiles, we need a stronger normalization than what
-{ref}`Chapter 1's RPKM <code:rpkm>` provides.
+In this chapter, we will continue to analyze the gene expression data from Chapter 1, but with a slightly different purpose: we want to use each patient's *gene expression profile* (the full vector of their gene expression measurements) to predict their expected survival.
+In order to use full profiles, we need a stronger normalization than what Chapter 1's RPKM provides.
 We will instead perform [*quantile normalization*](https://en.wikipedia.org/wiki/Quantile_normalization), a technique that ensures measurements fit a specific distribution.
 This method enforces a strong assumption: if the data are not distributed according to a desired shape, we just make it fit!
 This might feel a bit like cheating, but it turns out to be simple and useful in many cases where the specific distribution doesn't matter, but the relative changes of values within a population are important.
-For example, Bolstad and colleagues [showed][bolstad] that it performs
-admirably in recovering known expression levels in microarray data
-{cite}`bolstad2003comparison`.
+For example, Bolstad and colleagues [showed](https://doi.org/10.1093/bioinformatics/19.2.185) that it performs admirably in recovering known expression levels in microarray data.
 
-[bolstad]: https://doi.org/10.1093/bioinformatics/19.2.185
+Over the course of the chapter, we will reproduce a simplified version of [Figures 5A and 5B](http://www.cell.com/action/showImagesData?pii=S0092-8674%2815%2900634-0) from this [paper](http://dx.doi.org/10.1016/j.cell.2015.05.044), which comes from The Cancer Genome Atlas (TCGA) project.
 
-Over the course of the chapter, we will reproduce a simplified version of [Figures 5A and 5B](http://www.cell.com/action/showImagesData?pii=S0092-8674%2815%2900634-0) from this [paper](http://dx.doi.org/10.1016/j.cell.2015.05.044), which comes from The Cancer Genome Atlas (TCGA) project {cite}`akbani2015genomic`.
-
-{ref}`Our implementation of quantile normalization <code:ch2-intro>` uses
-NumPy and SciPy effectively to produce a function that is fast, efficient,
-and elegant. Quantile normalization involves three steps:
+Our implementation of quantile normalization uses NumPy and SciPy effectively to produce a function that is fast, efficient, and elegant. Quantile normalization involves three steps:
 - Sort the values along each column,
 - Find the average of each resulting row, and
 - Replace each column quantile with the quantile of the average column.
 
-```{code-block}
----
-name: code:ch2-intro
-caption: |
-    {doc}`Chapter 2 <ch2>` is dedicated to the implementation of the
-    quantile normalization scheme.
----
+```{code-cell}
 import numpy as np
 from scipy import stats
 
@@ -79,29 +77,17 @@ def quantile_norm(X):
 Due to the kind of variability of gene expression count data, it is common practice to log-transform the data before quantile-normalizing.
 Thus, we write an additional helper function to transform to log:
 
-```{code-block} python
----
-name: code:log-qnorm
-caption: |
-    Helper function to perform quantile normalization on $\log$ data
----
+```{code-cell}
 def quantile_norm_log(X):
     logX = np.log(X + 1)
     logXn = quantile_norm(logX)
     return logXn
 ```
 
-Together, the functions defined in {numref}`code:ch2-intro` and 
-{numref}`code:log-qnorm` illustrate many of the things that make NumPy powerful
-(you will remember the first three of these moves from {doc}`Chapter 1 <ch1>`):
+Together, these two functions illustrate many of the things that make NumPy powerful (you will remember the first three of these moves from chapter 1):
 
 1. Arrays can be one-dimensional, like lists, but they can also be two-dimensional, like matrices, and higher-dimensional still. This allows them to represent many different kinds of numerical data. In our case, we are representing a 2D matrix.
-2. Arrays allow the expression of many numerical operations at once.
-   In the  first line of 
-   %TODO - FIGURE OUT HOW TO SPECIFY LITERALS WITHIN A ROLE
-   {ref}`quantile_norm_log <code:log-qnorm>`, we add one and take the
-   logarithm for every value in `X` in a single call. This is called
-   {ref}`*vectorization* <sec:vectorization>`.
+2. Arrays allow the expression of many numerical operations at once. In the  first line of `quantile_norm_log`, we add one and take the logarithm for every value in `X` in a single call. This is called *vectorization*.
 3. Arrays can be operated on along *axes*. In the first line of `quantile_norm`, we sort the data along each column just by specifying an `axis` parameter to `np.sort`. We then take the mean along each row by specifying a *different* `axis`.
 4. Arrays underpin the scientific Python ecosystem. The `scipy.stats.rankdata` function operates not on Python lists, but on NumPy arrays. This is true of many scientific libraries in Python.
 5. Even functions that don't have an `axis=` keyword can be made to operate along axes by NumPy's `apply_along_axis` function.
@@ -112,14 +98,14 @@ follows.
 
 ## Getting the Data
 
-As in {ref}`Chapter 1 <sec:gene_expression_dataset>`, we will be working with the The Cancer Genome Atlas (TCGA) skin cancer RNAseq dataset.
+As in Chapter 1, we will be working with the The Cancer Genome Atlas (TCGA) skin cancer RNAseq dataset.
 Our goal is to predict mortality in skin cancer patients using their RNA expression data.
 As mentioned earlier, by the end of this chapter we will have reproduced a simplified version of [Figures 5A and 5B](http://www.cell.com/action/showImagesData?pii=S0092-8674%2815%2900634-0) of a [paper](http://dx.doi.org/10.1016/j.cell.2015.05.044) from the TCGA consortium.
 
 As in Chapter 1, first we will use pandas to make our job of reading in the data much easier.
 First we will read in our counts data as a pandas table.
 
-```python
+```{code-cell}
 import bz2
 import numpy as np
 import pandas as pd
@@ -136,7 +122,7 @@ Looking at the rows and columns of `data_table`, we can see that the
 columns are the samples, and the rows are the genes.
 Now let's put our counts in a NumPy array.
 
-```python
+```{code-cell}
 # 2D ndarray containing expression counts for each gene in each individual
 counts = data_table.to_numpy()
 ```
@@ -149,7 +135,7 @@ better idea of the overall shape.
 
 First, as usual, we set our plotting style:
 
-```python
+```{code-cell}
 # Make plots appear inline, set custom plotting style
 %matplotlib inline
 import matplotlib.pyplot as plt
@@ -158,7 +144,7 @@ plt.style.use('style/elegant.mplstyle')
 
 Next, we write a plotting function that makes use of SciPy's `gaussian_kde` function to plot smooth distributions:
 
-```python
+```{code-cell}
 from scipy import stats
 
 def plot_col_density(data):
@@ -178,11 +164,12 @@ def plot_col_density(data):
 Now, we can use that function to plot the distributions of the raw data,
 before we have done any normalization:
 
-```python
+```{code-cell}
 # Before normalization
 log_counts = np.log(counts + 1)
 plot_col_density(log_counts)
 ```
+
 <!-- caption text="Density of gene expression counts for each individual (log scale)" -->
 
 We can see that while the distributions of counts are broadly similar,
@@ -197,26 +184,18 @@ rather than due to biological variation.
 So we will try to normalize out these global differences between individuals.
 
 To do this normalization, we will perform quantile normalization, as described
-{ref}`at the start of the chapter <sec:ch2_intro>`.  The idea is that all
-our samples should have a
+at the start of the chapter.  The idea is that all our samples should have a
 similar distribution, so any differences in the shape should be due to some
 technical variation.  More formally, given an expression matrix (microarray
 data, read counts, etc) of shape `(n_genes, n_samples)`, quantile normalization
 ensures that all samples (columns) have the same spread of data by construction.
 
 With NumPy and SciPy, this can be done easily and efficiently.
-To recap, {numref}`code:qnorm` containts our quantile normalization
-implementation, which we introduced at the beginning of the chapter.
+To recap, here is our quantile normalization implementation, which we introduced at the beginning of the chapter.
 
 Let's assume we've read in the input matrix as X:
 
-```{code-block} python
----
-name: code:qnorm
-caption: |
-    Implementation of quantile normalization and $\log$ helper function,
-    repeated here from {numref}`code:ch2-intro` and {numref}`code:log-qnorm`.
----
+```{code-cell}
 import numpy as np
 from scipy import stats
 
@@ -266,12 +245,13 @@ def quantile_norm_log(X):
 
 Now, let's see what our distributions look like after quantile normalization.
 
-```python
+```{code-cell}
 # After normalization
 log_counts_normalized = quantile_norm_log(counts)
 
 plot_col_density(log_counts_normalized)
 ```
+
 <!-- caption text="Density of gene expression counts for each individual after quantile normalization (log scale)" -->
 
 As you might expect, the distributions now look virtually identical!
@@ -292,12 +272,7 @@ By clustering along the rows we find out with genes are working together, and by
 
 Because clustering can be an expensive operation, we will limit our analysis to the 1,500 genes that are most variable, since these will account for most of the correlation signal in either dimension.
 
-```{tip}
-This strategy is generally useful for when developing/testing data analysis
-techniques on large datasets.
-```
-
-```python
+```{code-cell}
 def most_variable_rows(data, *, n=1500):
     """Subset data to the n most variable rows
 
@@ -325,24 +300,20 @@ def most_variable_rows(data, *, n=1500):
 ```
 
 Next, we need a function to bicluster the data.
-Normally, you would use a sophisticated clustering algorithm from the
-[scikit-learn](http://scikit-learn.org) library for this.
+Normally, you would use a sophisticated clustering algorithm from the [scikit-learn](http://scikit-learn.org) library for this.
 In our case, we want to use hierarchical clustering for simplicity and ease of display.
 The SciPy library happens to have a perfectly good hierarchical clustering module, though it requires a bit of wrangling to get your head around its interface.
 
-As a reminder, hierarchical clustering is a method to group observations using
-sequential merging of clusters:
- * Initially, every observation is its own cluster.
- * Then, the two nearest clusters are repeatedly merged, and then the next two,
-   and so on, until every observation is in a single cluster.
-
+As a reminder, hierarchical clustering is a method to group observations using sequential merging of clusters:
+initially, every observation is its own cluster.
+Then, the two nearest clusters are repeatedly merged, and then the next two,
+and so on, until every observation is in a single cluster.
 This sequence of merges forms a *merge tree*.
 By cutting the tree at a specific height, we can get a finer or coarser clustering of observations.
 
 The `linkage` function in `scipy.cluster.hierarchy` performs a hierarchical clustering of the rows of a matrix, using a particular metric (for example, Euclidean distance, Manhattan distance, or others) and a particular linkage method, the distance between two clusters (for example, the average distance between all the observations in a pair of clusters).
 
 It returns the merge tree as a "linkage matrix," which contains each merge operation along with the distance computed for the merge and the number of observations in the resulting cluster. From the `linkage` documentation:
-%TODO - USE AUTODOC FEATURES FOR THIS?
 
 > A cluster with an index less than $n$ corresponds to one of
 > the $n$ original observations. The distance between
@@ -353,14 +324,9 @@ It returns the merge tree as a "linkage matrix," which contains each merge opera
 Whew! That's a lot of information, but let's dive right in and hopefully you'll get the hang of it rather quickly.
 First, we define a function, `bicluster`, that clusters both the rows *and* the columns of a matrix:
 
-```{code-block} python
----
-name: code:bicluster
-caption: |
-    Definition of a `bicluster` function based on 
-    `scipy.cluster.hierarchy.linkage`
----
+```{code-cell}
 from scipy.cluster.hierarchy import linkage
+
 
 def bicluster(data, linkage_method='average', distance_metric='correlation'):
     """Cluster the rows and the columns of a matrix.
@@ -394,24 +360,14 @@ Simple: we just call `linkage` for the input matrix and also for the *transpose*
 Next, we define a function to visualize the output of that clustering.
 We are going to rearrange the rows and columns of the input data so that similar rows are together and similar columns are together.
 And we are additionally going to show the merge tree for both rows and columns, displaying which observations belong together for each.
-%TODO: AUTODOC ETC. FOR DENDROGRAM
 The merge trees are presented as dendrograms, with the branch-lengths indicating how similar the observations are to each other (shorter = more similar).
 
-```{admonition} Word of Warning
-There is a fair bit of hard-coding of parameters going on here.
-While generally frowned upon from the perspective of *reproducible* 
-analysis, hard-coding parameters is often difficult to avoid for plotting,
-where design is often a matter of eyeballing to find the correct proportions.
-```
+As a word of warning, there is a fair bit of hard-coding of parameters going on here.
+This is difficult to avoid for plotting, where design is often a matter of eyeballing to find the correct proportions.
 
-```{code-block} python
----
-name: code:plot-bicluster
-caption: |
-    Function for visualizing clusters found in `data` using `bicluster` as
-    defined in {numref}`code:bicluster`.
----
+```{code-cell}
 from scipy.cluster.hierarchy import dendrogram, leaves_list
+
 
 def clear_spines(axes):
     for loc in ['left', 'right', 'top', 'bottom']:
@@ -491,7 +447,7 @@ def plot_bicluster(data, row_linkage, col_linkage,
 
 Now we apply these functions to our normalized counts matrix to display row and column clusterings.
 
-```python
+```{code-cell}
 counts_log = np.log(counts + 1)
 counts_var = most_variable_rows(counts_log, n=1500)
 yr, yc = bicluster(counts_var, linkage_method='ward',
@@ -499,21 +455,18 @@ yr, yc = bicluster(counts_var, linkage_method='ward',
 with plt.style.context('style/thinner.mplstyle'):
     plot_bicluster(counts_var, yr, yc)
 ```
+
 <!-- caption text="This heatmap shows the level of gene expression across all samples and genes. The color indicates the expression level. The rows and columns are grouped by our clusters. We can see our gene clusters along the y-axis and sample clusters across the top of the x-axis." -->
 
 ## Predicting Survival
 
 We can see that the sample data naturally falls into at least two clusters, maybe three.
 Are these clusters meaningful?
-To answer this, we can access the patient data, available from the 
-[data repository](https://tcga-data.nci.nih.gov/docs/publications/skcm_2015/)
-for the paper.
-After some preprocessing, we get the
-[patients table](https://github.com/elegant-scipy/elegant-scipy/blob/master/data/patients.csv),
-which contains survival information for each patient.
+To answer this, we can access the patient data, available from the [data repository](https://tcga-data.nci.nih.gov/docs/publications/skcm_2015/) for the paper.
+After some preprocessing, we get the [patients table](https://github.com/elegant-scipy/elegant-scipy/blob/master/data/patients.csv), which contains survival information for each patient.
 We can then match these to the counts clusters, and understand whether the patients' gene expression can predict differences in their pathology.
 
-```python
+```{code-cell}
 patients = pd.read_csv('data/patients.csv', index_col=0)
 patients.head()
 ```
@@ -533,17 +486,10 @@ This is a plot of the fraction of a population that remains alive over a period 
 Note that some data is *right-censored*, which means that in some cases, we don't actually know when the patient died, or the patient might have died of causes unrelated to the melanoma.
 We count these patients as "alive" for the duration of the survival curve, but more sophisticated analyses might try to estimate their likely time of death.
 
-To obtain a survival curve from survival times, we create a step function that
-decreases by $1/n$ at each step, where $n$ is the number of patients in the
-group.
+To obtain a survival curve from survival times, we create a step function that decreases by $1/n$ at each step, where $n$ is the number of patients in the group.
 We then match that function against the noncensored survival times.
 
-```{code-block} python
----
-name: code:survival
-caption: |
-    Definition of a function for *computing* the survival curve of a population
----
+```{code-cell}
 def survival_distribution_function(lifetimes, right_censored=None):
     """Return the survival distribution function of a set of lifetimes.
 
@@ -587,17 +533,10 @@ def survival_distribution_function(lifetimes, right_censored=None):
     return xs, ys
 ```
 
-Now that we can easily obtain curves from the survival data, we can plot them.
-We write a function that groups the survival times by cluster identity and
-plots each group as a different line:
+Now that we can easily obtain survival curves from the survival data, we can plot them.
+We write a function that groups the survival times by cluster identity and plots each group as a different line:
 
-```{code-block} python
----
-name: code:plot-survival
-caption: |
-    Function for plotting the survival curve computed by 
-    `survival_distribution_function` in {numref}`code:survival`.
----
+```{code-cell}
 def plot_cluster_survival_curves(clusters, sample_names, patients,
                                  censor=True):
     """Plot the survival data from a set of sample clusters.
@@ -651,7 +590,7 @@ Now we can use the `fcluster` function to obtain cluster identities for the samp
 The `fcluster` function takes a linkage matrix, as returned by `linkage`, and a threshold, and returns cluster identities.
 It's difficult to know a-priori what the threshold should be, but we can obtain the appropriate threshold for a fixed number of clusters by checking the distances in the linkage matrix.
 
-```python
+```{code-cell}
 from scipy.cluster.hierarchy import fcluster
 n_clusters = 3
 threshold_distance = (yc[-n_clusters, 2] + yc[-n_clusters+1, 2]) / 2
@@ -659,6 +598,7 @@ clusters = fcluster(yc, threshold_distance, 'distance')
 
 plot_cluster_survival_curves(clusters, data_table.columns, patients)
 ```
+
 <!-- caption text="Survival curves for patients clustered using gene expression data" -->
 
 The clustering of gene expression profiles appears to have identified a
@@ -667,13 +607,7 @@ The TCGA study backs this claim up with a more robust clustering and
 statistical testing. This is indeed only the latest study to show such a
 result, with others identifying subtypes of leukemia (blood cancer), gut
 cancer, and more. Although the above clustering technique is quite fragile,
-there are other, more robust ways to explore this and similar datasets
-{cite}`akbani2015genomic`.
-
-%TODO: BOOK-LEVEL CITATIONS TO SUPPRESS SPHINX ERRORS ABOUT MULTIPLE 
-%LABEL DEFINITIONS FROM USING {bibliography} DIRECTIVE IN EACH CHAPTER
-```{bibliography} references.bib
-```
+there are other, more robust ways to explore this and similar datasets [^paper].
 
 <!-- exercise begin -->
 
@@ -688,8 +622,7 @@ Plot survival curves using the original clusters and UV signature columns of the
 
 ## Further Work: Reproducing the TCGA's Clusters
 
-We leave you the exercise of implementing the approach described in the paper
-{cite}`akbani2015genomic`:
+We leave you the exercise of implementing the approach described in the paper[^paper]:
 
 1. Take bootstrap samples (random choice with replacement) of the genes used to cluster the samples;
 2. For each sample, produce a hierarchical clustering;
@@ -699,8 +632,10 @@ We leave you the exercise of implementing the approach described in the paper
 This identifies groups of samples that frequently occur together in clusterings, regardless of the genes chosen.
 Thus, these samples can be considered to robustly cluster together.
 
-```{hint}
-*Use `np.random.choice` with `replacement=True` to create bootstrap samples of row indices.*
-```
+*Hint: use `np.random.choice` with `replacement=True` to create bootstrap samples of row indices.*
 
 <!-- exercise end -->
+
+[^paper]: The Cancer Genome Atlas Network. (2015) Genomic Classification of
+          Cutaneous Melanoma. Cell 161:1681-1696.
+          http://dx.doi.org/10.1016/j.cell.2015.05.044
