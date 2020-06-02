@@ -1,8 +1,11 @@
-# Elegant Scipy
+# Elegant Scipy - The Art of Scientific Python
+
+**By:** Juan Nunez-Iglesias ([@jni][jni]), Harriet Dashnow ([@hdashnow][hda]),
+and Stéfan van der Walt ([@stefanv][ste])
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 1
 caption: Chapters
 ---
 content/preface.md
@@ -17,3 +20,7 @@ content/ch7.md
 content/ch8.md
 content/epilogue.md
 ```
+
+[jni]: https://github.com/jni
+[hda]: https://github.com/hdashnow
+[ste]: https://github.com/stefanv
