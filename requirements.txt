@@ -15,5 +15,5 @@ pillow>=6.2
 beautifulsoup4>=4.8
 lxml>=4.4
 # executablebooks
-jupyter-book>=0.7.0b
+git+git://github.com/executablebooks/jupyter-book.git@master#egg=jupyter-book
 jupytext
