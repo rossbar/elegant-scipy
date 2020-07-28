@@ -18,7 +18,8 @@ notebooks into a text-based format with `jupytext`.
    ```
    This creates the (un-executed) notebooks in the `ipynb/` directory
 
- - Convert to myst-nb format with `jupytext`: 
+ - **NOTE:** To test text-based notebook format: convert to myst-nb format with
+   `jupytext`:
    ```bash
    cd ipynb/
    jupytext -k python3 *.ipynb --to myst
@@ -29,15 +30,17 @@ notebooks into a text-based format with `jupytext`.
      format - it must by .md format to keep things from borking (as of
      jb 0.7)
 
- - Copy the *.md files to `jupybook`
- - Modify `_toc.yml`: remove template files and add all new .md files
+ - Copy the source files (either *.md **or** *.ipynb) to `jupybook`
+ - Modify `_toc.yml`: remove template files and add all new source files
    * Make sure not to include file extensions in `_toc.yml`
 
  - **MISC STEP** - Add links to `data/` and `style/` dirs, e.g.
-   * `ln -s data jupybook/data`
-   * `ln -s style jupybook/style`
-   * `ln -s images jupybook/images`
+   * `ln -s data ../data`
+   * `ln -s style ../style`
+   * `ln -s images ../images`
    TODO: Figure out how to automate this within jupyter-book
+
+ - Build the book: `jb build .`
 
 [myst-nb]: https://myst-nb.readthedocs.io/en/latest/use/markdown.html
 
