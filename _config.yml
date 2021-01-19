@@ -9,3 +9,16 @@ title                       : Elegant Scipy
 author                      : Juan Nunez-Iglesias, Stéfan van der Walt, Harriet Dashnow
 copyright                   : "2021"  # Copyright year to be placed in the footer
 # logo                        : logo.png  # A path to the book logo
+
+sphinx:
+  config:
+    exclude_patterns:
+      - \*.ipynb_checkpoints
+      - .DS_Store
+      - Thumbs.db
+      - _build
+      - ipynb
+      - CONTRIBUTING.md
+      - LICENSE.md
+      - LICENSE-CODE.md
+      - README.md
