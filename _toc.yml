@@ -1,0 +1,13 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+- file: content/preface
+- file: content/ch1
+- file: content/ch2
+- file: content/ch3
+- file: content/ch4
+- file: content/ch5
+- file: content/ch6
+- file: content/ch7
+- file: content/ch8
+- file: content/epilogue
+- file: content/acknowledgements
