@@ -10,6 +10,8 @@ author                      : Juan Nunez-Iglesias, Stéfan van der Walt, Harriet
 copyright                   : "2021"
 logo                        : _images/cover.jpg
 
+only_build_toc_files: true
+
 latex:
   latex_engine: xelatex
   latex_documents:
@@ -17,14 +19,4 @@ latex:
 
 sphinx:
   config:
-    exclude_patterns:
-      - \*.ipynb_checkpoints
-      - .DS_Store
-      - Thumbs.db
-      - _build
-      - ipynb
-      - CONTRIBUTING.md
-      - LICENSE.md
-      - LICENSE-CODE.md
-      - README.md
     latex_logo: _images/cover.jpg
