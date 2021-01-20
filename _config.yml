@@ -7,8 +7,8 @@
 # Book settings
 title                       : Elegant Scipy
 author                      : Juan Nunez-Iglesias, Stéfan van der Walt, Harriet Dashnow
-copyright                   : "2021"  # Copyright year to be placed in the footer
-# logo                        : logo.png  # A path to the book logo
+copyright                   : "2021"
+logo                        : _images/cover.jpg
 
 latex:
   latex_engine: xelatex
@@ -27,3 +27,4 @@ sphinx:
       - LICENSE.md
       - LICENSE-CODE.md
       - README.md
+    latex_logo: _images/cover.jpg
