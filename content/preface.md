@@ -277,7 +277,7 @@ Indeed, we use many new features from Python 3 in this book.
 
 In Elegant SciPy, we use **Python 3.6**.
 
-For more reading, see Ed Schofield's resource, [python-future.org](python-future.org),
+For more reading, see Ed Schofield's resource, [python-future.org](https://python-future.org),
 and Nick Coghlan's [book-length guide](http://python-notes.curiousefficiency.org/en/latest/python3/questions_and_answers.html) to the transition.
 
 ## SciPy Ecosystem and Community
