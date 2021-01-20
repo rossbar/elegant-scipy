@@ -10,6 +10,11 @@ author                      : Juan Nunez-Iglesias, Stéfan van der Walt, Harriet
 copyright                   : "2021"  # Copyright year to be placed in the footer
 # logo                        : logo.png  # A path to the book logo
 
+latex:
+  latex_engine: xelatex
+  latex_documents:
+    targetname: elegant-scipy.tex
+
 sphinx:
   config:
     exclude_patterns:
