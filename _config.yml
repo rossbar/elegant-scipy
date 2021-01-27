@@ -15,6 +15,9 @@ only_build_toc_files: true
 parse:
   myst_extended_syntax: true
 
+execute:
+  execute_notebooks: cache
+
 latex:
   latex_engine: xelatex
   latex_documents:
