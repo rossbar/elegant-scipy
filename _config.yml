@@ -24,5 +24,7 @@ latex:
     targetname: elegant-scipy.tex
 
 sphinx:
+  extra_extensions:
+    - sphinx.ext.imgconverter
   config:
     latex_logo: _images/cover.jpg
